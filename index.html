@@ -339,8 +339,6 @@ input.tx{height:54px;width:100%;border:3px solid var(--ink);border-radius:14px;p
 .snd.off{opacity:.5}
 @media(max-width:700px){#unobtn b{font-size:19px}#unobtn small{font-size:9px}#tip{width:200px}#wmsg{top:calc(36% + 130px);font-size:18px}#wheelw #wheel,#wcancel{top:36%}.snd{width:34px}}
 
-.mul{margin:0 0 6px;padding-left:1.4em;font:15px 'Gothic A1'}.mul li{margin:2px 0}.mul button{font:inherit;text-align:left;padding:4px 6px;border-radius:8px;color:var(--ink)}.mul button:hover{background:#f3eefa}.mul li.on button{background:#fff8d9;font-weight:800}
-.vol{display:flex;align-items:center;gap:10px;font:14px 'Gothic A1';margin-bottom:12px}.vol input{flex:1;accent-color:#ff5d6c}
 @keyframes pulse{50%{opacity:.25}}
 @keyframes pop{from{transform:translate(-40px,80px) rotate(-18deg) scale(.8);opacity:.3}}
 @keyframes wig{to{transform:rotate(-2.5deg)}}
@@ -376,7 +374,7 @@ input.tx{height:54px;width:100%;border:3px solid var(--ink);border-radius:14px;p
   <div class="me">
    <div class="lbl">캐릭터랑 닉네임</div>
    <div class="avbox"><span id="myav"></span><button class="dice" data-a="reroll" aria-label="캐릭터 바꾸기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 0 0-14.5-4.5L4 8M4 4v4h4M4 13a8 8 0 0 0 14.5 4.5L20 16M20 20v-4h-4"/></svg></button></div>
-   <input class="tx" id="nick" maxlength="10" autocomplete="off">
+   <input class="tx" id="nick" maxlength="10" autocomplete="off" name="uu-nick-x" spellcheck="false">
   </div>
   <div class="go">
    <div class="invited hide" id="invited"></div>
@@ -668,6 +666,7 @@ const mkPeer=id=>LOCAL?new FPeer(id):new MPeer(id);
 let me={name:'',av:Math.random()*1e9|0,tok:Math.random().toString(36).slice(2)+Date.now().toString(36)};
 try{const s=JSON.parse(localStorage.getItem('uu-me'));if(s&&s.tok)me={...me,...s}}catch(e){}
 const saveMe=()=>{try{localStorage.setItem('uu-me',JSON.stringify(me))}catch(e){}};
+if(me.name){me.name='';saveMe()}
 const ADJ=['배고픈','졸린','신난','수상한','용감한','삐진','느긋한','반짝이는','시끄러운','엉뚱한','쫄깃한','바삭한'];
 const ANI=['너구리','펭귄','고양이','수달','오리','햄스터','판다','거북이','다람쥐','여우','부엉이','코알라'];
 const rname=()=>rnd(ADJ)+' '+rnd(ANI);
@@ -1042,6 +1041,7 @@ function renderHome(){
  $('myav').innerHTML=avatar(me.av);
  
  if(!$('nick').placeholder)$('nick').placeholder=rname();
+ if(!peer&&!render._nk){render._nk=1;$('nick').value=''}
  const h=location.hash.slice(1).toUpperCase();
  if(/^[A-Z0-9]{6}$/.test(h)&&!peer){$('jcode').value=h;$('invited').textContent=`초대받았어요! 닉네임 정하고 입장을 누르세요 (${h})`;$('invited').classList.remove('hide')}
 }
@@ -1094,30 +1094,17 @@ function sfx(n,delay=0){
  }
 }
 function sfxFor(c){const k=c.k,kd=KD[k];if(k==='n')return'play';if(kd.dv)return'plus';if(['skip','skip2','skipall','wskip','wskip2','freeze'].includes(k))return'skip';if(['rev','wrev','reflect'].includes(k))return'rev';if(c.c==='w')return'wild';return'special'}
-/* 배경음악: 각자 컴퓨터에 있는 음악 파일을 골라서 내 브라우저에서만 반복 재생 */
-const MU={tracks:[],i:0,el:null,vol:.35};try{MU.vol=+(localStorage.getItem('uu-vol')||.35)}catch(e){}
-function idb(){return new Promise((res,rej)=>{try{const r=indexedDB.open('uu-music',1);r.onupgradeneeded=()=>r.result.createObjectStore('t',{keyPath:'n'});r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}catch(e){rej(e)}})}
-async function muLoad(){try{const db=await idb();const all=await new Promise(r=>{const q=db.transaction('t').objectStore('t').getAll();q.onsuccess=()=>r(q.result||[]);q.onerror=()=>r([])});MU.tracks=all.sort((a,b)=>a.o-b.o);sndBtns()}catch(e){}}
-async function muSave(files){MU.tracks=files.map((f,o)=>({n:f.name,o,b:f}));MU.i=0;try{const db=await idb();const tx=db.transaction('t','readwrite'),st=tx.objectStore('t');st.clear();MU.tracks.forEach(t=>st.put(t))}catch(e){}if(MU.el){MU.el.pause();MU.el=null}AU.bgm=true;saveAU();bgmUpdate();sndBtns()}
-const tname=n=>n.replace(/\.[a-z0-9]+$/i,'').replace(/[_]+/g,' ').replace(/\s*\((mp3\.pm|128k)\)/ig,'').trim();
-function muStart(i){if(!MU.tracks.length)return;MU.i=((i%MU.tracks.length)+MU.tracks.length)%MU.tracks.length;if(MU.el){MU.el.pause();URL.revokeObjectURL(MU.el.src)}const el=new Audio(URL.createObjectURL(MU.tracks[MU.i].b));el.volume=MU.vol;el.onended=()=>muStart(MU.i+1);el.onerror=()=>setTimeout(()=>muStart(MU.i+1),300);MU.el=el;el.play().catch(()=>{});if(!$('mod').classList.contains('hide')&&$('mod').querySelector('.mup'))modal(musicHTML())}
-function bgmUpdate(){if(!AU.bgm||!MU.tracks.length){if(MU.el)MU.el.pause();return}if(!MU.el)muStart(MU.i);else if(MU.el.paused)MU.el.play().catch(()=>{})}
-function musicHTML(){
- const list=MU.tracks.length?`<ol class="mul">${MU.tracks.map((t,i)=>`<li class="${i===MU.i&&MU.el&&!MU.el.paused?'on':''}"><button data-a="mujump" data-v="${i}">${esc(tname(t.n))}</button></li>`).join('')}</ol>`:'<p class="msub">아직 고른 음악이 없어요.</p>';
- return`<div class="ph mup">배경음악 <small>내 브라우저에서만 나와요</small></div><div class="bd">
- <p class="msub">컴퓨터에 있는 음악 파일을 여러 개 고르면 순서대로 끝없이 반복해요. 한 번 고르면 다음에 열어도 기억해요. 친구들은 각자 자기 파일을 골라야 들려요.</p>
- ${list}
- <div class="row" style="justify-content:flex-start;margin:10px 0"><label class="btn sm y" style="display:inline-grid;place-items:center;cursor:pointer">음악 파일 고르기<input type="file" id="mufile" accept="audio/*,.mp3,.aac,.m4a,.ogg,.wav" multiple hidden></label>
- ${MU.tracks.length?`<button class="btn sm" data-a="munext">다음 곡</button><button class="btn sm" data-a="bgm">${AU.bgm?'끄기':'켜기'}</button>`:''}</div>
- <label class="vol">볼륨 <input type="range" id="muvol" min="0" max="1" step="0.05" value="${MU.vol}"></label>
- <div class="row"><button class="btn sm" data-a="close">닫기</button></div></div>`;
+/* 배경음악: 저장소의 bgm 폴더에 파일을 넣으면 재생 */
+const BGM={lobby:'bgm/lobby.mp3',game:'bgm/game.mp3'};let bgmEl=null,bgmScene=null;const BGMFAIL={};
+function bgmUpdate(){
+ const scene=!V||V.phase==='lobby'?'lobby':'game',src=BGM[scene];
+ if(!AU.bgm||!src||BGMFAIL[scene]){if(bgmEl)bgmEl.pause();return}
+ if(bgmScene!==scene||!bgmEl){if(bgmEl)bgmEl.pause();bgmScene=scene;const el=new Audio(src);el.loop=true;el.volume=.32;el.onerror=()=>{BGMFAIL[scene]=true;if(bgmEl===el)bgmEl=null};bgmEl=el}
+ if(bgmEl&&bgmEl.paused)bgmEl.play().catch(()=>{});
 }
-document.addEventListener('change',e=>{if(e.target.id==='mufile'){const f=[...e.target.files].filter(x=>/^audio\/|\.(mp3|aac|m4a|ogg|wav)$/i.test(x.type||x.name));if(f.length){muSave(f).then(()=>modal(musicHTML()));toast(`${f.length}곡을 반복 재생할게요`)}}});
-document.addEventListener('input',e=>{if(e.target.id==='muvol'){MU.vol=+e.target.value;if(MU.el)MU.el.volume=MU.vol;try{localStorage.setItem('uu-vol',MU.vol)}catch(_){}}});
-muLoad();
 const SPK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z"/>',NOTE='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l11-2v13"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/>';
 function sndBtns(){document.querySelectorAll('[data-a=sfx]').forEach(b=>{b.innerHTML=SPK+(AU.sfx?'<path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/>':'<path d="M16 9l5 6M21 9l-5 6"/>')+'</svg>';b.classList.toggle('off',!AU.sfx)});
- document.querySelectorAll('[data-a=bgm]').forEach(b=>{b.innerHTML=NOTE+(AU.bgm&&MU.tracks.length?'':'<path d="M3 3l18 18"/>')+'</svg>';b.classList.toggle('off',!(AU.bgm&&MU.tracks.length))})}
+ document.querySelectorAll('[data-a=bgm]').forEach(b=>{b.innerHTML=NOTE+(AU.bgm?'':'<path d="M3 3l18 18"/>')+'</svg>';b.classList.toggle('off',!AU.bgm)})}
 /* 카드 설명 말풍선 */
 let SEL=null;
 function tipHTML(c,el){
@@ -1330,9 +1317,7 @@ document.addEventListener('click',e=>{
   case 'start':case 'next':case 'lobby':case 'draw':case 'pass':case 'catch':case 'chal':case 'piletake':if(V)send({a});break;
   case 'wcol':if(PK&&PK.t==='color'){sfx('pick');const cb=PK.cb;PK=null;cb(v);render()}break;
   case 'sfx':AU.sfx=!AU.sfx;saveAU();sndBtns();sfx('click');break;
-  case 'bgm':if(el.closest('#mod')){AU.bgm=!AU.bgm;saveAU();sndBtns();bgmUpdate();modal(musicHTML())}else modal(musicHTML());break;
-  case 'munext':muStart(MU.i+1);break;
-  case 'mujump':muStart(+v);break;
+  case 'bgm':AU.bgm=!AU.bgm;saveAU();sndBtns();bgmUpdate();break;
   case 'pkcancel':PK=null;render();break;
   case 'scores':if(V)modal(scoresHTML());break;
  }
