@@ -1014,7 +1014,7 @@ const NUMS=[
  {k:'target',l:'목표 점수',d:'1등 점수제일 때만 써요. 단판이면 한 판 이긴 사람이 바로 우승.',o:[[200,'200'],[300,'300'],[500,'500'],[1000,'1000'],[0,'단판']]},
  {k:'hand',l:'시작 손패',d:'처음에 나눠 받는 카드 수. 적을수록 판이 빨리 끝나요.',o:[[5,'5장'],[7,'7장'],[10,'10장']]},
  {k:'timer',l:'턴 시간',d:'한 차례에 쓸 수 있는 시간. 넘기면 자동으로 한 장 뽑고 넘어가요.',o:[[0,'무제한'],[8,'8초'],[15,'15초'],[30,'30초']]},
- {k:'tlim',l:'턴 제한',o:[[-1,'자동','인원 × 25턴(2명 60 · 4명 100 · 8명 200, 최대 300). 다 되면 그 자리에서 끝내고 카드가 적은 순서로 순위를 매겨요.'],[100,'100턴','100턴이 지나면 그 자리에서 끝내고 카드가 적은 순서로 순위를 매겨요.'],[200,'200턴','200턴이 지나면 그 자리에서 끝내고 카드가 적은 순서로 순위를 매겨요.'],[0,'없음','누가 끝낼 때까지 계속해요. 대난투 같은 모드는 아주 길어질 수 있어요.']]},
+ {k:'tlim',l:'턴 제한',o:[[-1,'자동','인원 × 30턴(2명 60 · 4명 120 · 8명 240, 최대 300). 다 되면 그 자리에서 끝내고 카드가 적은 순서로 순위를 매겨요.'],[100,'100턴','100턴이 지나면 그 자리에서 끝내고 카드가 적은 순서로 순위를 매겨요.'],[200,'200턴','200턴이 지나면 그 자리에서 끝내고 카드가 적은 순서로 순위를 매겨요.'],[0,'없음','누가 끝낼 때까지 계속해요. 대난투 같은 모드는 아주 길어질 수 있어요.']]},
  {k:'mercy',l:'머시 탈락',d:'손패가 이 장수 이상 쌓이면 그 자리에서 탈락. 판이 무한히 늘어지는 걸 막아줘요.',o:[[0,'없음'],[20,'20장'],[25,'25장'],[30,'30장']]},
  {k:'join',l:'중간 입장',o:[['play','바로 참가','게임 중에 들어온 사람도 시작 손패를 받고 바로 끼어요. (팀전은 구경만)'],['watch','구경만','게임 중에 들어오면 이번 게임은 구경하고 다음 판부터 같이 해요.'],['off','막기','게임 중에는 아무도 못 들어와요. 끊겼다 다시 들어오는 사람은 괜찮아요.']]},
  {k:'leave',l:'나간 사람',o:[['bot','봇이 대신','접속이 끊기면 봇이 대신 카드를 내요. 다시 들어오면 바로 이어서 해요.'],['draw','뽑고 넘김','접속이 끊기면 차례마다 한 장 뽑고 넘어가요. 손패가 계속 늘어요.'],['out','탈락','접속이 끊기면 바로 탈락. 꼴찌 정하기면 꼴찌 쪽으로 가요.']]}
@@ -1327,7 +1327,7 @@ function startGame(){
 function newRound(){
  const G=H.G,P=P_();
  G.round++;G.dir=1;G.unoMiss=null;G.result=null;G.log=[];G.sub=null;G.links=[];G.frozen={};G.reveal={};G.burn=0;clearPending();
- P.forEach((p,i)=>{p.hand=[];p.uno=false;p.dead=!!(G.teams&&i>=G.tn*2)||!!(p.off&&H.set.leave==='out');p.why=p.dead?(p.off?'left':'watch'):null;p.fin=false});G.ranks=[];G.elim=[];G.teamRanks=[];G.chain=null;G.rt=0;{const tl=H.set.tlim,al=P.filter((p,i)=>!(G.teams&&i>=G.tn*2)).length;G.tmax=tl===-1?Math.min(300,Math.max(60,al*25)):tl||0}
+ P.forEach((p,i)=>{p.hand=[];p.uno=false;p.dead=!!(G.teams&&i>=G.tn*2)||!!(p.off&&H.set.leave==='out');p.why=p.dead?(p.off?'left':'watch'):null;p.fin=false});G.ranks=[];G.elim=[];G.teamRanks=[];G.chain=null;G.rt=0;{const tl=H.set.tlim,al=P.filter((p,i)=>!(G.teams&&i>=G.tn*2)).length;G.tmax=tl===-1?Math.min(300,Math.max(60,al*30)):tl||0}
  G.deck=buildDeck();G.discard=[];
  for(let r=0;r<H.set.hand;r++)P.forEach((p,i)=>{if(!p.dead)draw(i,1,1)});
  let fi=G.deck.findIndex(c=>c.k==='n');if(fi<0)fi=G.deck.length-1;
@@ -1610,7 +1610,7 @@ function renderLobby(){
 }
 function rulesSummary(s,mode,n){
  const out=[],m=(MODES.find(x=>x.id===mode)||{n:'커스텀'}).n;
- const tl=s.tlim===-1?Math.min(300,Math.max(60,n*25)):s.tlim;
+ const tl=s.tlim===-1?Math.min(300,Math.max(60,n*30)):s.tlim;
  out.push(['모드',`${m} · 시작 손패 ${s.hand}장${s.timer?` · 한 턴 ${s.timer}초`:''}${tl?` · ${tl}턴 제한`:''}`]);
  out.push(['기본','내 차례에 맨 위 카드와 같은 색이나 같은 숫자(기호) 카드를 한 장 내요. 낼 게 없으면 더미에서 한 장 뽑아요.']);
  out.push(['승리',s.rank&&s.team&&n>=4&&n%2===0?'팀원 두 명이 모두 손패를 털어야 팀이 빠져나가요. 마지막까지 남은 팀이 꼴찌 팀!':s.rank?'손패를 다 털면 순서대로 1등, 2등…으로 빠져나가요. 마지막까지 카드가 남은 한 명이 꼴찌!':s.target?`손패를 먼저 다 털면 라운드 승리. 남들 손에 남은 카드 점수를 가져가서 ${s.target}점을 먼저 넘으면 최종 우승.`:'손패를 먼저 다 털면 바로 우승인 단판 승부.']);
