@@ -947,7 +947,7 @@ const KD={
  rev:{n:'방향 전환',p:'base',ic:'rev',d:'진행 방향을 뒤집음. 2명이면 건너뛰기.'},
  d2:{n:'+2',p:'base',tx:'+2',dv:2,d:'다음 사람 2장.'},
  wild:{n:'와일드',p:'base',w:1,d:'색을 바꿈.'},
- w4:{n:'와일드 +4',p:'base',w:1,tx:'+4',dv:4,d:'색을 바꾸고 다음 사람이 4장 받고 쉼. 가운데 카드 색이 내 손에 없을 때만 낼 수 있음.'},
+ w4:{n:'와일드 +4',p:'base',w:1,tx:'+4',dv:4,d:'색을 바꾸고 다음 사람이 4장 받고 쉼. 언제든 낼 수 있음.'},
  wshuf:{n:'와일드 셔플',p:'base',w:1,ic:'wshuf',d:'모두의 손패를 모아 섞어 다음 사람부터 다시 나눔.'},
  skip2:{n:'2칸 건너뛰기',p:'ultra',ic:'skip2',d:'다음 두 사람을 건너뜀.'},
  every1:{n:'모두 +1',p:'ultra',tx:'+1',si:'people',d:'나 빼고 전원 1장씩.'},
@@ -1001,7 +1001,7 @@ const RULES=[
  ['jump','끼어들기','맨 위 카드와 색·숫자까지 완전히 똑같은 카드가 있으면 내 차례가 아니어도 바로 낼 수 있어요. 차례는 끼어든 사람 다음으로 넘어가요.'],
  ['force','강제 내기','더미에서 뽑은 카드가 낼 수 있는 카드라면 넘기지 못하고 반드시 내야 해요.'],
  ['dtm','낼 때까지 뽑기','낼 카드가 없을 때 한 장이 아니라 낼 수 있는 카드가 나올 때까지 계속 뽑아요.'],
- ['bluff','+4 몰래 내기','끄면(기본): 가운데 카드 색이 내 손에 있으면 +4가 잠겨서 못 내요. 켜면: 잠기지 않아서 몰래 낼 수 있어요. 대신 맞은 사람이 "의심하기"를 누르면 들통나요. 걸리면 낸 사람이 4장, 괜히 의심했으면 의심한 사람이 6장.'],
+ ['bluff','+4 도전 (공식 룰)','공식 규칙에서는 +4를 가운데 색 카드가 없을 때만 낼 수 있어요. 켜면 +4를 맞은 사람이 "의심하기"로 확인해요. 그 색 카드를 숨기고 냈으면 낸 사람이 4장, 아니면 의심한 사람이 6장.'],
  ['catch','우노 잡기','1장 남았는데 UNO를 안 외친 사람이 있으면, 누구든 UNO 버튼(스페이스바)을 눌러 잡아서 2장을 먹일 수 있어요.'],
  ['launcher','발사기','카드를 뽑을 때 1장이 아니라 0~6장이 무작위로 튀어나와요. 운이 좋으면 0장! (우노 어택 장난감 규칙)'],
  ['multi','겹쳐내기','같은 숫자(또는 같은 기호) 카드를 여러 장 한꺼번에 낼 수 있어요. 하나 내고 나면 같은 카드를 이어서 더 내거나 "그만 내기"를 눌러요. +2 두 장이면 +4, 건너뛰기 두 장이면 두 명을 건너뛰어요.'],
@@ -1061,7 +1061,7 @@ function canPlay(c,s,set){
  const t=s.top;return t.c!=='w'&&c.k===t.k&&(c.k!=='n'||c.v===t.v);
 }
 const w4Block=(c,s,set)=>c.k==='w4'&&!set.bluff&&!set.allwild&&!s.pending&&!s.chain&&!!s.hand&&s.hand.some(x=>x.id!==c.id&&x.c===s.color);
-const okNow=(c,s,set)=>s.drew!==-1&&(s.drew===null||c.id===s.drew)&&canPlay(c,s,set)&&!w4Block(c,s,set);
+const okNow=(c,s,set)=>s.drew!==-1&&(s.drew===null||c.id===s.drew)&&canPlay(c,s,set);
 const same=(c,t)=>c.c!=='w'&&c.c===t.c&&c.k===t.k&&(c.k!=='n'||c.v===t.v);
 function needs(c,handLen,set){
  const last=handLen===1;
@@ -1714,7 +1714,7 @@ function tipHTML(c,el){
  let t,d;
  if(c.k==='n'){t=`${CN[c.c]} ${c.v}`;d='같은 색이나 같은 숫자 위에 낼 수 있어요.';if(V.set.sz&&c.v===7)d+=' 7-0 룰: 고른 사람과 손패를 바꿔요.';if(V.set.sz&&c.v===0)d+=' 7-0 룰: 모두 손패를 옆 사람에게 넘겨요.'}
  else{t=(c.c==='w'?'':CN[c.c]+' ')+kd.n;d=kd.d}
- const st=el.classList.contains('jump')?['끼어들기 가능','ok']:el.classList.contains('ok')?[SEL===c.id?'한 번 더 누르면 내요':'낼 수 있어요','ok']:V.g&&V.g.cur===V.me?[c.k==='w4'&&!V.set.bluff&&!V.g.pending&&V.g.hand.some(x=>x.id!==c.id&&x.c===V.g.color)?`잠김: 손에 ${CN[V.g.color]} 카드가 있어요`:'지금은 못 내요','no']:null;
+ const st=el.classList.contains('jump')?['끼어들기 가능','ok']:el.classList.contains('ok')?[SEL===c.id?'한 번 더 누르면 내요':'낼 수 있어요','ok']:V.g&&V.g.cur===V.me?['지금은 못 내요','no']:null;
  return`<div class="tt"><i style="background:${col}"></i>${esc(t)}</div><div class="td">${esc(d)}</div>${st?`<span class="ts ${st[1]}">${st[0]}</span>`:''}`;
 }
 function showTip(el){const id=+el.dataset.id,c=V&&V.g&&V.g.hand.find(x=>x.id===id);if(!c)return;const tip=$('tip');tip.innerHTML=tipHTML(c,el);const r=el.getBoundingClientRect();tip.style.left=Math.max(130,Math.min(innerWidth-130,r.left+r.width/2))+'px';tip.style.top=(r.top-18)+'px';tip.classList.remove('hide')}
@@ -1944,7 +1944,7 @@ function closeMod(){const m=$('mod');m.classList.add('hide');m.innerHTML=''}
 function helpHTML(){
  const ex=k=>({c:KD[k].w?'w':['r','y','g','b'][KORD.indexOf(k)%4],k,v:k==='n'?11:null});
  const sec=PACKS.map(([pk,n,d])=>`<h4>${n} <small>${d}</small></h4><div class="ref">${KORD.filter(k=>KD[k].p===pk).map(k=>`<div>${cardHTML(ex(k))}<span><b>${KD[k].n}</b>${KD[k].d}</span></div>`).join('')}</div>`).join('');
- return`<div class="ph">카드 설명</div><div class="bd"><h4>처음이라면 이것만</h4><ul class="rules"><li><b>내는 법</b>: 맨 위 카드와 <u>색</u>이 같거나 <u>숫자·기호</u>가 같으면 낼 수 있어요. 와일드(검은 카드)는 언제든 내고 색을 정해요.</li><li><b>낼 게 없으면</b>: 더미를 눌러 한 장 뽑아요. 뽑은 카드가 맞으면 바로 낼 수 있어요.</li><li><b>우노</b>: 카드가 1장 남으면 UNO 버튼(스페이스바). 안 누르고 들키면 2장 벌칙.</li><li><b>+카드</b>: 다음 사람이 그만큼 뽑고 차례를 쉬어요. 누적 룰이 켜져 있으면 나도 +카드를 내서 넘길 수 있어요.</li><li><b>와일드 +4</b>: 가운데 카드 색이 내 손에 없을 때만 낼 수 있어요. 있으면 +4가 잠겨요.</li><li><b>카드 설명</b>: 게임 중 카드에 마우스를 올리거나 한 번 누르면 설명이 떠요.</li></ul>${sec}
+ return`<div class="ph">카드 설명</div><div class="bd"><h4>처음이라면 이것만</h4><ul class="rules"><li><b>내는 법</b>: 맨 위 카드와 <u>색</u>이 같거나 <u>숫자·기호</u>가 같으면 낼 수 있어요. 와일드(검은 카드)는 언제든 내고 색을 정해요.</li><li><b>낼 게 없으면</b>: 더미를 눌러 한 장 뽑아요. 뽑은 카드가 맞으면 바로 낼 수 있어요.</li><li><b>우노</b>: 카드가 1장 남으면 UNO 버튼(스페이스바). 안 누르고 들키면 2장 벌칙.</li><li><b>+카드</b>: 다음 사람이 그만큼 뽑고 차례를 쉬어요. 누적 룰이 켜져 있으면 나도 +카드를 내서 넘길 수 있어요.</li><li><b>와일드 +4</b>: 언제든 내서 색을 바꾸고, 다음 사람이 4장 받아요.</li><li><b>카드 설명</b>: 게임 중 카드에 마우스를 올리거나 한 번 누르면 설명이 떠요.</li></ul>${sec}
  <h4>하우스 룰</h4><ul class="rules">${RULES.map(([k,n,d])=>`<li><b>${n}</b>: ${d}</li>`).join('')}<li><b>머시 탈락</b>: 손패가 정한 장수 이상이 되면 탈락. 마지막까지 남은 사람(팀)이 이겨요.</li></ul>
  <ul class="rules"><li>낼 게 없으면 한 장 뽑고, 그 카드가 맞으면 바로 낼 수 있어요.</li><li>2장 남았을 때 우노!를 미리 눌러 두세요. 1장인데 안 눌렀으면 누구든 잡기로 +2.</li><li>점수: 숫자는 숫자대로, 색 특수 카드 20, 와일드 50. 이긴 사람이 남들 손패 점수를 가져가요.</li></ul>
  <div class="row"><button class="btn sm" data-a="close">닫기</button></div></div>`;
