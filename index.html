@@ -801,6 +801,9 @@ body.quake #center,body.quake #seatz,body.quake #handz{animation:quake .45s line
 #subz .gbtn{justify-self:center}
 @media(max-width:700px){#subz{padding:10px 12px;gap:6px}#subz b{font-size:17px}}
 .res small.why{font-size:12px;font-weight:700;color:#8a7fa3}.res small.why.g{color:#18a58b}.res small.why.b{color:#e5383b}
+.tag.bot{background:#2d1a47;color:#fff;font-size:10px;font-weight:800;padding:2px 6px;border-radius:6px;margin-left:4px}
+.pl.empty .addbot{width:100%;height:100%;min-height:34px;border:0;background:transparent;font:inherit;font-weight:800;color:#6a4fb0;cursor:pointer;border-radius:10px}
+.pl.empty .addbot:hover{background:rgba(106,79,176,.1)}
 </style>
 </head>
 <body>
@@ -1237,9 +1240,10 @@ function act(i,d){
   case 'rule':if(host&&lobby&&RULES.some(r=>r[0]===d.k)){H.set[d.k]=!H.set[d.k];H.mode='custom'}break;
   case 'num':{const s=NUMS.find(x=>x.k===d.k);if(host&&lobby&&s&&s.o.some(o=>o[0]===d.v)){H.set[d.k]=d.v;H.mode='custom'}break}
   case 'pack':if(host&&lobby){if(d.k==='base'){if(H.set.orig){H.set.orig=false}else H.set.allwild=!H.set.allwild}else if(d.k==='orig'){H.set.orig=!H.set.orig;H.set.allwild=false}else if(d.k in H.set.packs){H.set.packs[d.k]=!H.set.packs[d.k];H.set.allwild=false;H.set.orig=false}H.mode='custom'}break;
+  case 'addbot':{if(host&&lobby&&H.players.length<16){let name='봇 '+rnd(ANI),k=2;while(H.players.some(x=>x.name===name))name='봇 '+rnd(ANI)+k++;H.players.push({tok:'bot'+Math.random(),pid:newPid(),img:null,name,av:Math.random()*1e9|0,conn:null,off:false,bot:true,hand:[],score:0,uno:false,dead:false})}break}
   case 'kick':{if(host&&lobby&&d.v>0&&H.players[d.v]){const p=H.players.splice(d.v,1)[0];if(p.conn){p.conn.send({t:'kicked'});const c=p.conn;setTimeout(()=>c.close(),300)}}break}
   case 'start':if(host&&lobby&&H.players.length>=2){H.phase='intro';H.ready={}}break;
-  case 'ready':if(H.phase==='intro'){H.ready[i]=1;if(H.players.every((p,j)=>p.off||H.ready[j]))startGame()}break;
+  case 'ready':if(H.phase==='intro'){H.ready[i]=1;if(H.players.every((p,j)=>p.off||p.bot||H.ready[j]))startGame()}break;
   case 'go':if(host&&H.phase==='intro')startGame();break;
   case 'back':if(host&&H.phase==='intro'){H.phase='lobby';H.players=H.players.filter((p,j)=>j===0||!p.off)}break;
   case 'next':if(host&&H.phase==='round')newRound();break;
@@ -1260,7 +1264,7 @@ function act(i,d){
 }
 function viewFor(i){
  const P=H.players,G=H.G;
- const v={code:H.code,me:i,phase:H.phase,mode:H.mode,set:H.set,ready:H.ready?Object.keys(H.ready).map(Number):[],players:P.map((p,j)=>({pid:p.pid,name:p.name,av:p.av,score:p.score,n:p.hand.length,off:p.off,uno:p.uno,dead:p.dead,why:p.why||null,fin:!!p.fin,rk:G&&G.ranks?G.ranks.indexOf(j)+1:0,team:G?tm(j):null,fz:!!(G&&G.frozen[j]),hand:G&&(G.reveal[j]||P[i].dead)&&j!==i?p.hand:null}))};
+ const v={code:H.code,me:i,phase:H.phase,mode:H.mode,set:H.set,ready:H.ready?Object.keys(H.ready).map(Number):[],players:P.map((p,j)=>({bot:!!p.bot,pid:p.pid,name:p.name,av:p.av,score:p.score,n:p.hand.length,off:p.off,uno:p.uno,dead:p.dead,why:p.why||null,fin:!!p.fin,rk:G&&G.ranks?G.ranks.indexOf(j)+1:0,team:G?tm(j):null,fz:!!(G&&G.frozen[j]),hand:G&&(G.reveal[j]||P[i].dead)&&j!==i?p.hand:null}))};
  if(G){const S=G.sub;v.g={top:G.discard[G.discard.length-1],color:G.color,dir:G.dir,cur:G.cur,pending:G.pending,plast:G.plast,deckN:G.deck.length,log:G.log.slice(0,12),unoMiss:G.unoMiss,
   drew:G.cur===i?G.drew:null,dbl:G.cur===i&&G.dbl,left:G.deadline?Math.max(0,G.deadline-Date.now()):0,total:G.total||0,round:G.round,turn:G.turn,lastBy:G.lastBy,chain:G.cur===i?G.chain||null:null,cd:G.cdUntil?Math.max(0,G.cdUntil-Date.now()):0,hand:P[i].hand,result:G.result,
   rt:Math.min(G.rt||0,G.tmax||0),tmax:G.tmax||0,chalc:G.w4prev,chal:!!(H.set.bluff&&G.w4chk&&G.pending&&G.cur===i&&G.plastBy===G.w4chk.by),must:G.cur===i&&mustPlay(),links:G.links,teams:G.teams,
@@ -1276,6 +1280,7 @@ setInterval(()=>{
  if(!H||!H.G||H.phase!=='play')return;const G=H.G;
  if(G.sub){if(Date.now()>G.sub.until){autoSub();postCheck();hb()}}
  else if(G.tmax&&G.rt>G.tmax){timeUp();hb()}
+ else if(G.unoMiss!=null){const bots=aliveIdx().filter(j=>H.players[j].bot&&j!==G.unoMiss);if(G.bcKey!==G.unoMiss+':'+G.turn){G.bcKey=G.unoMiss+':'+G.turn;G.bcAt=Date.now()+1800+Math.random()*2500}if(bots.length&&Date.now()>G.bcAt){gCatch(rnd(bots));G.bcAt=Infinity;hb()}else if(G.deadline&&Date.now()>G.deadline){autoMove();postCheck();hb()}}
  else if(G.deadline&&Date.now()>G.deadline){autoMove();postCheck();hb()}
 },300);
 
@@ -1351,7 +1356,7 @@ function startTurn(){
   break;
  }
  G.rt=(G.rt||0)+1;
- G.total=P[G.cur].off?800:H.set.timer*1000;G.deadline=G.total?Date.now()+G.total:0;
+ G.total=P[G.cur].bot?900+Math.random()*900:P[G.cur].off?800:H.set.timer*1000;G.deadline=G.total?Date.now()+G.total:0;
 }
 function endTurn(skip){const G=H.G;P_().forEach(p=>{if(p.hand.length!==1)p.uno=false});delete G.reveal[G.cur];G.cur=nx(G.cur,1+skip);startTurn()}
 function gDraw(i){
@@ -1468,9 +1473,9 @@ function afterUno(i){const p=P_()[i];if(p.hand.length===1&&!p.uno&&H.set.catch)H
 function openSub(){
  const G=H.G,S=G.sub,P=P_();G.deadline=0;
  S.total=S.t==='vote'?20000:S.t==='slap'?3500:15000;S.until=Date.now()+S.total;
- if(S.t==='slap'){return}
- if(S.t==='vote')aliveIdx().forEach(j=>{if(P[j].off)S.votes[j]=rnd(aliveIdx().filter(x=>x!==j))});
- else if(P[S.who].off||P[S.who].dead)S.until=Date.now()+1200;
+ if(S.t==='slap'){const k=S.key=Math.random();aliveIdx().filter(j=>P[j].bot).forEach(j=>setTimeout(()=>{if(H&&H.G&&H.G.sub&&H.G.sub.key===k){sSlap(j);hb()}},450+Math.random()*1800));return}
+ if(S.t==='vote')aliveIdx().forEach(j=>{if(P[j].off||P[j].bot)S.votes[j]=rnd(aliveIdx().filter(x=>x!==j))});
+ else if(P[S.who].off||P[S.who].bot||P[S.who].dead)S.until=Date.now()+1200;
  if(S.t==='vote')checkVote();
 }
 function sVote(i,t){const G=H.G,S=G&&G.sub;if(!S||S.t!=='vote'||P_()[i].dead||S.votes[i]!=null||!validTarget(t,i))return;S.votes[i]=t;checkVote()}
@@ -1487,7 +1492,7 @@ function sRoul(i,col){const G=H.G,S=G&&G.sub;if(!S||S.t!=='roul'||S.who!==i||!'r
 function sPileAdd(i,id){const G=H.G,S=G&&G.sub;if(!S||S.t!=='pile'||S.who!==i)return;const p=P_()[i],c=p.hand.find(x=>x.id===id&&x.c===S.col);if(!c)return;
  p.hand=p.hand.filter(x=>x.id!==id);S.pile.push(c);log(`${p.name}, 미니 더미에 ${cname(c)} (${S.pile.length}장)`);
  if(!p.hand.length){G.sub=null;G.discard.splice(G.discard.length-1,0,...S.pile.filter(c=>!G.discard.includes(c)));if(finishRank(i))return;G.cur=i;endTurn(0);return}
- afterUno(i);S.who=nx(i,1);S.until=Date.now()+(P_()[S.who].off?1200:S.total);
+ afterUno(i);S.who=nx(i,1);S.until=Date.now()+(P_()[S.who].off||P_()[S.who].bot?1200:S.total);
 }
 function sPileTake(i){const G=H.G,S=G&&G.sub;if(!S||S.t!=='pile'||S.who!==i)return;const p=P_()[i];
  p.hand.push(...S.pile);p.uno=false;log(`${p.name}, 미니 더미 ${S.pile.length}장 전부 가져감!`);G.sub=null;G.cur=i;endTurn(0);
@@ -1497,8 +1502,8 @@ function resolveSlap(){const G=H.G,S=G.sub,P=P_(),al=aliveIdx().filter(j=>!P[j].
 function autoSub(){const G=H.G,S=G.sub,P=P_();
  if(S.t==='slap'){resolveSlap();return}
  if(S.t==='vote'){aliveIdx().forEach(j=>{if(S.votes[j]==null)S.votes[j]=rnd(aliveIdx().filter(x=>x!==j))});resolveVote()}
- else if(S.t==='roul'){if(P[S.who].dead){G.sub=null;G.cur=S.who;endTurn(0)}else sRoul(S.who,rnd(['r','y','g','b']))}
- else if(S.t==='pile'){if(P[S.who].dead){S.who=nx(S.who,1);S.until=Date.now()+S.total}else sPileTake(S.who)}
+ else if(S.t==='roul'){if(P[S.who].dead){G.sub=null;G.cur=S.who;endTurn(0)}else sRoul(S.who,P[S.who].bot?botColor(P[S.who]):rnd(['r','y','g','b']))}
+ else if(S.t==='pile'){if(P[S.who].dead){S.who=nx(S.who,1);S.until=Date.now()+S.total}else{const p=P[S.who],c=(p.bot||p.off)&&p.hand.find(x=>x.c===S.col);if(c)sPileAdd(S.who,c.id);else sPileTake(S.who)}}
 }
 function autoPlay(i,c){const P=P_(),nd=needs(c,P[i].hand.length,H.set),others=aliveIdx().filter(j=>j!==i),al=aliveIdx();
  const d={id:c.id,col:rnd(['r','y','g','b'])};
@@ -1532,11 +1537,11 @@ function botMove(){const G=H.G,i=G.cur,p=P_()[i],t0=G.turn,h0=p.hand.length;
  drawMove(i)}
 function autoMove(){
  const G=H.G,i=G.cur,p=P_()[i];
- if(p.off&&H.set.leave==='bot'){botMove();return}
+ if(p.bot||(p.off&&H.set.leave==='bot')){botMove();return}
  drawMove(i)}
 function drawMove(i){
  const G=H.G,p=P_()[i];
- if(!p.off)log(`${p.name}, 시간 초과!`);
+ if(!p.off&&!p.bot)log(`${p.name}, 시간 초과!`);
  if(G.pending){gDraw(i);return}
  if(G.dbl||G.chain){gPass(i);return}
  if(G.drew===null)gDraw(i);
@@ -1596,8 +1601,8 @@ function renderLobby(){
  const host=V.me===0,P=V.players,s=V.set,dis=host?'':'disabled';
  $('pcount').textContent=`${P.length} / 16`;
  const slots=Math.max(4,Math.min(16,P.length+1));
- $('plist').innerHTML=P.map((p,i)=>`<li class="pl">${face(p)}<span class="nm">${esc(p.name)}</span>${i===0?CROWN:''}${i===V.me?'<span class="tag me">나</span>':''}${host&&i>0?`<button class="kick" data-a="kick" data-v="${i}" aria-label="내보내기">×</button>`:''}</li>`).join('')
-  +Array.from({length:slots-P.length},()=>'<li class="pl empty">빈자리</li>').join('');
+ $('plist').innerHTML=P.map((p,i)=>`<li class="pl">${face(p)}<span class="nm">${esc(p.name)}</span>${p.bot?'<span class="tag bot">BOT</span>':''}${i===0?CROWN:''}${i===V.me?'<span class="tag me">나</span>':''}${host&&i>0?`<button class="kick" data-a="kick" data-v="${i}" aria-label="내보내기">×</button>`:''}</li>`).join('')
+  +Array.from({length:slots-P.length},(x,k)=>k===0&&host&&P.length<16&&V.phase==='lobby'?'<li class="pl empty"><button class="addbot" data-a="addbot">+ 봇 추가</button></li>':'<li class="pl empty">빈자리</li>').join('');
  $('mhead').innerHTML=host?'모드 고르기 <small>방장만 바꿀 수 있어요</small>':'모드 <small>방장이 고르는 중</small>';
  $('modes').innerHTML=MODES.map(m=>`<button class="mode ${V.mode===m.id?'on':''}" data-a="mode" data-v="${m.id}" ${dis}><span class="ic" style="background:${m.c}">${svg(m.i,2.4)}</span><b>${m.n}</b><span>${m.d}</span></button>`).join('');
  const packs=PACKS.map(([k,n,d])=>{const on=k==='base'?!s.allwild:!s.allwild&&s.packs[k];const lab=k==='base'&&s.allwild?'올 와일드 덱':n;return`<button class="chipb ${on||(k==='base'&&s.allwild)?'on':''}" data-a="pack" data-k="${k}" title="${esc(d)}" ${dis}>${lab}</button>`}).join('');
@@ -2027,7 +2032,7 @@ document.addEventListener('click',e=>{
   case 'uno':unoPress();break;
   case 'settings':modal(settingsHTML());break;
   case 'sfxtest':['play','plus','wild','uno'].forEach((n,i)=>sfx(n,i*.45));break;
-  case 'slap':case 'ready':case 'go':case 'back':case 'start':case 'next':case 'lobby':case 'draw':case 'pass':case 'catch':case 'chal':case 'piletake':if(V)send({a});break;
+  case 'addbot':case 'slap':case 'ready':case 'go':case 'back':case 'start':case 'next':case 'lobby':case 'draw':case 'pass':case 'catch':case 'chal':case 'piletake':if(V)send({a});break;
   case 'wcol':if(PK&&PK.t==='color'){sfx('pick');const cb=PK.cb;PK=null;cb(v);render()}break;
     case 'pkcancel':PK=null;render();break;
   case 'scores':if(V)modal(scoresHTML());break;
