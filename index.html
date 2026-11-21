@@ -795,6 +795,12 @@ body.quake #center,body.quake #seatz,body.quake #handz{animation:quake .45s line
 .st .peekh em{font-style:normal;font-size:11px;font-weight:800;color:#fff;margin-left:4px}
 .st.watch .tok{box-shadow:0 0 0 3px #ffd84d,0 0 18px rgba(255,216,77,.6)}
 .st[data-seat]{cursor:default}body .st.dead,body .st.fin{cursor:default}
+#subz{top:var(--cy);transform:translate(-50%,-50%);z-index:12;max-width:min(92vw,520px);box-shadow:0 18px 40px rgba(0,0,0,.55)}
+#subz .minip{flex-wrap:nowrap;justify-content:center;gap:0;padding-left:14px;max-width:100%;overflow:hidden}
+#subz .minip .cd.mini{margin-left:-14px;flex:none}
+#subz .gbtn{justify-self:center}
+@media(max-width:700px){#subz{padding:10px 12px;gap:6px}#subz b{font-size:17px}}
+.res small.why{font-size:12px;font-weight:700;color:#8a7fa3}.res small.why.g{color:#18a58b}.res small.why.b{color:#e5383b}
 </style>
 </head>
 <body>
@@ -1564,9 +1570,9 @@ function endRound(w,byMercy){
  win.forEach(j=>P[j].score+=sum);
  const t=H.set.target,rankMode=H.set.rank;let over=t===0||P[w].score>=t;let order=null;
  if(rankMode){const left=aliveIdx().sort((a,b)=>P[a].hand.length-P[b].hand.length);order=[...G.ranks,...left,...[...G.elim].reverse()].filter((x,k,a)=>a.indexOf(x)===k);over=true}
- G.result={w,win,sum,over,order,mercy:!!byMercy,teams:G.teams,rows:P.map((p,j)=>({pid:p.pid,name:p.name,av:p.av,score:p.score,left:p.hand.length,lp:p.hand.reduce((s,c)=>s+pts(c),0),dead:p.dead,team:tm(j)}))};
+ G.result={w,win,sum,over,order,mercy:!!byMercy,teams:G.teams,rows:P.map((p,j)=>({pid:p.pid,name:p.name,av:p.av,score:p.score,left:p.hand.length,lp:p.hand.reduce((s,c)=>s+pts(c),0),dead:p.dead,why:p.why||null,fin:!!p.fin,team:tm(j)}))};
  G.deadline=0;G.sub=null;H.phase=over?'over':'round';
- log(`${G.teams?`${P[w].name} 팀`:P[w].name} ${byMercy?'최후의 생존!':'라운드 승리!'} +${sum}점`);
+ if(rankMode){const o=G.result.order;log(`게임 끝! 1등 ${P[o[0]].name} · 꼴찌 ${P[o[o.length-1]].name}`)}else log(`${G.teams?`${P[w].name} 팀`:P[w].name} ${byMercy?'최후의 생존!':'라운드 승리!'} +${sum}점`);
 }
 
 /* ================= 화면 ================= */
@@ -1767,9 +1773,10 @@ function fly(from,to,html,delay=0,rot=0,cls=''){
  requestAnimationFrame(()=>requestAnimationFrame(()=>{d.style.transform=`translate(-50%,-50%) translate(${b.x-a.x}px,${b.y-a.y}px) rotate(${rot}deg)`}));
  setTimeout(()=>d.remove(),560+delay);
 }
+function resWhy(x,R){if(x.fin)return'카드 다 털어냄';if(x.dead&&x.why==='mercy')return`${V.set.mercy}장 넘어서 탈락`;if(x.dead&&x.why==='left')return'나가서 탈락';if(x.dead)return'탈락';return R.timeup?`턴 제한 · ${x.left}장 남음`:`끝까지 ${x.left}장 남음`}
 function whyTxt(p,short){const w=p.why;if(w==='mercy')return short?`${V.set.mercy}장 초과`:`${V.set.mercy}장 넘어서 탈락`;if(w==='left')return short?'나감':'나가서 탈락';if(w==='watch')return'구경 중';return'탈락'}
 let prevDead={};
-function deathFx(){if(!V||!V.g||V.phase!=='play'){prevDead={};return}
+function deathFx(){if(!V||!V.g||!['play','round','over'].includes(V.phase)){prevDead={};return}
  V.players.forEach((p,j)=>{const k=p.pid||j,was=prevDead[k];prevDead[k]=!!p.dead;if(was===false&&p.dead&&!p.fin&&p.why==='mercy')boom(j,p)})}
 function boom(j,p){const el=j===V.me?$('mebox'):document.querySelector(`.st[data-seat="${j}"] .tok`)||document.querySelector(`.st[data-seat="${j}"]`);if(!el)return;
  const r=el.getBoundingClientRect(),d=document.createElement('div');d.className='boomfx';d.style.left=(r.left+r.width/2)+'px';d.style.top=(r.top+r.height/2)+'px';
@@ -1849,7 +1856,7 @@ function renderGame0(){
  // 안내
  let hint='',tag='';
  if(play&&!PK){
-  if(pileMe){tag='파일 업';hint=`${CN[S.col]} 카드를 올리거나 전부 가져가요`}
+  if(pileMe){}
   else if(mine){tag='내 차례';const anyOk=g.hand.some(c=>okNow(c,g,V.set));
    hint=g.chain?(V.set.run&&g.chain.k==='n'&&g.hand.some(c=>c.k==='n'&&c.c===g.chain.c&&c.v===g.chain.v+1)?`${CN[g.chain.c]} ${g.chain.v+1}을(를) 이어서 낼 수 있어요. 아니면 그만 내기`:'같은 카드를 더 겹쳐 낼 수 있어요. 아니면 그만 내기'):g.dbl?'더블! 한 장 더 내거나 턴을 넘겨요':g.must?'뽑은 카드를 꼭 내야 해요':g.pending&&!anyOk?`막을 카드가 없어요. 더미를 눌러 +${g.pending}장 받기`:g.pending?'+카드로 넘기거나, 방패·반사로 막거나, 더미를 눌러 받아요':g.drew!==null&&!anyOk?'뽑은 카드도 안 맞아요. 턴을 넘겨요':anyOk?'빛나는 카드를 누르거나 위로 끌어서 내요':'낼 카드가 없어요. 더미를 눌러 한 장 뽑아요'}
   else if(spec!=null){tag='관전';hint=`${P[spec].name}${WATCH==null?'(지금 차례)':''} 패 보는 중 · 다른 자리를 누르면 그 사람 패를 봐요`}
@@ -1910,16 +1917,16 @@ function renderGame0(){
   let rows,hero;
   if(R.order){
    const last=R.order[R.order.length-1];
-   rows=`<tr class="hd"><td></td><td></td><td>순위</td><td class="n">남은 카드</td></tr>`+R.order.map((j,k)=>{const x=R.rows[j];return`<tr class="${k===0?'win':''} ${j===last?'lose':''}"><td class="rk">${k===R.order.length-1?'꼴찌':(k+1)+'등'}</td><td>${face(x)}</td><td>${esc(x.name)}</td><td class="n">${x.left?x.left+'장':'-'}</td></tr>`}).join('');
-   hero=`<div class="rhero"><div class="rav">${face(R.rows[R.order[0]])}</div><b>${esc(R.rows[R.order[0]].name)}</b><span>${R.timeup?'턴 제한 종료 · 1등!':'1등!'}</span><em>꼴찌: ${esc(R.rows[last].name)}</em></div>`;
+   rows=`<tr class="hd"><td></td><td></td><td>순위</td><td class="n">남은 카드</td></tr>`+R.order.map((j,k)=>{const x=R.rows[j];return`<tr class="${k===0?'win':''} ${j===last?'lose':''}"><td class="rk">${k===R.order.length-1?'꼴찌':(k+1)+'등'}</td><td>${face(x)}</td><td>${teamDot(x.team)}${esc(x.name)}<br><small class="why ${x.fin?'g':x.dead?'b':''}">${resWhy(x,R)}</small></td><td class="n">${x.left?x.left+'장':'-'}</td></tr>`}).join('');
+   hero=`<div class="rhero"><div class="rav">${face(R.rows[R.order[0]])}</div><b>${esc(R.rows[R.order[0]].name)}</b><span>${R.timeup?'턴 제한 종료 · 1등!':'1등!'}</span><em>꼴찌: ${esc(R.rows[last].name)} · ${resWhy(R.rows[last],R)}</em></div>`;
   }else{
-   rows=`<tr class="hd"><td></td><td></td><td>이름 · 남은 카드</td><td class="n">누적 점수</td></tr>`+R.rows.map((x,i)=>({...x,i})).sort((a,b)=>b.score-a.score).map((x,k)=>`<tr class="${R.win.includes(x.i)?'win':''}"><td class="rk">${k+1}</td><td>${face(x)}</td><td>${teamDot(x.team)}${esc(x.name)}<br><small>${x.dead?'탈락':`남은 ${x.left}장 · ${x.lp}점`}</small></td><td class="n">${x.score}</td></tr>`).join('');
+   rows=`<tr class="hd"><td></td><td></td><td>이름 · 남은 카드</td><td class="n">누적 점수</td></tr>`+R.rows.map((x,i)=>({...x,i})).sort((a,b)=>b.score-a.score).map((x,k)=>`<tr class="${R.win.includes(x.i)?'win':''}"><td class="rk">${k+1}</td><td>${face(x)}</td><td>${teamDot(x.team)}${esc(x.name)}<br><small class="why ${R.win.includes(x.i)?'g':x.dead?'b':''}">${R.win.includes(x.i)?(R.timeup?'턴 제한 · 카드가 가장 적음':R.mercy?'최후의 생존':'카드 다 털어냄')+' · +'+R.sum+'점':x.dead?resWhy(x,R):`남은 ${x.left}장 · ${x.lp}점`}</small></td><td class="n">${x.score}</td></tr>`).join('');
    const wn=R.teams?R.win.map(j=>esc(R.rows[j].name)).join(' & ')+' 팀':esc(R.rows[R.w].name);
    hero=`<div class="rhero"><div class="rav">${face(R.rows[R.w])}</div><b>${wn}</b><span>${R.timeup?'턴 제한 · 카드가 가장 적어요':over?'최종 우승!':R.mercy?'최후의 생존!':'라운드 승리!'}</span><em>+${R.sum}점</em></div>`;
   }
   const html=`<div class="pan dlg resd">${hero}<div class="bd"><table class="res">${rows}</table>
    <div class="row">${host?(over?`<button class="btn y" data-a="lobby">로비로</button>`:`<button class="btn sm" data-a="lobby">로비로</button><button class="btn y" data-a="next">다음 라운드</button>`):'<span style="color:var(--soft)">방장이 다음 판을 준비하는 중...</span>'}</div></div></div>`;
-  if(!resShown){resShown=true;confetti();sfx(over?'win':'special');clearTimeout(resT);resT=setTimeout(()=>{r.innerHTML=html;r.classList.remove('hide')},calm()?0:1700)}
+  if(!resShown){resShown=true;confetti();sfx(over?'win':'special');clearTimeout(resT);resT=setTimeout(()=>{r.innerHTML=html;r.classList.remove('hide')},calm()?0:R.mercy?2900:1700)}
   else if(!r.classList.contains('hide'))r.innerHTML=html;
  }else{r.classList.add('hide');resShown=false;clearTimeout(resT)}
 }
