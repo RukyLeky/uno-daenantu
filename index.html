@@ -1095,12 +1095,20 @@ function sfx(n,delay=0){
 }
 function sfxFor(c){const k=c.k,kd=KD[k];if(k==='n')return'play';if(kd.dv)return'plus';if(['skip','skip2','skipall','wskip','wskip2','freeze'].includes(k))return'skip';if(['rev','wrev','reflect'].includes(k))return'rev';if(c.c==='w')return'wild';return'special'}
 /* 배경음악: 저장소의 bgm 폴더에 파일을 넣으면 재생 */
-const BGM={lobby:'bgm/lobby.mp3',game:'bgm/game.mp3'};let bgmEl=null,bgmScene=null;const BGMFAIL={};
+const BGM={lobby:[{s:'bgm/2.mp3',g:-15},{s:'bgm/5.mp3',g:-15}],game:[{s:'bgm/1.mp3',g:-11.5},{s:'bgm/3.mp3',g:-12.8},{s:'bgm/4.mp3',g:-10.9}]};
+let bgmEl=null,bgmScene=null,bgmFails=0;const bgmIdx={lobby:Math.random()*2|0,game:Math.random()*3|0};
+function bgmPlay(scene){
+ const L=BGM[scene],t=L[bgmIdx[scene]%L.length],el=new Audio(t.s);
+ el.volume=Math.min(1,.3*Math.pow(10,(-13-t.g)/20));
+ el.onended=()=>{bgmIdx[scene]++;if(bgmEl===el&&AU.bgm)bgmPlay(scene)};
+ el.onerror=()=>{if(bgmEl!==el)return;bgmEl=null;if(++bgmFails<6){bgmIdx[scene]++;bgmPlay(scene)}};
+ bgmEl=el;el.play().catch(()=>{});
+}
 function bgmUpdate(){
- const scene=!V||V.phase==='lobby'?'lobby':'game',src=BGM[scene];
- if(!AU.bgm||!src||BGMFAIL[scene]){if(bgmEl)bgmEl.pause();return}
- if(bgmScene!==scene||!bgmEl){if(bgmEl)bgmEl.pause();bgmScene=scene;const el=new Audio(src);el.loop=true;el.volume=.32;el.onerror=()=>{BGMFAIL[scene]=true;if(bgmEl===el)bgmEl=null};bgmEl=el}
- if(bgmEl&&bgmEl.paused)bgmEl.play().catch(()=>{});
+ const scene=!V||V.phase==='lobby'?'lobby':'game';
+ if(!AU.bgm){if(bgmEl)bgmEl.pause();return}
+ if(bgmScene!==scene||!bgmEl){if(bgmEl){const o=bgmEl;bgmEl=null;o.pause()}bgmScene=scene;bgmPlay(scene);return}
+ if(bgmEl.paused)bgmEl.play().catch(()=>{});
 }
 const SPK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z"/>',NOTE='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l11-2v13"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/>';
 function sndBtns(){document.querySelectorAll('[data-a=sfx]').forEach(b=>{b.innerHTML=SPK+(AU.sfx?'<path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/>':'<path d="M16 9l5 6M21 9l-5 6"/>')+'</svg>';b.classList.toggle('off',!AU.sfx)});
