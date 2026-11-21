@@ -773,6 +773,23 @@ details.summ.more{margin-top:-6px}details.summ summary{cursor:pointer;font-weigh
 .imgrow{display:flex;gap:8px;justify-content:center}
 .rhero .rav img.pimg,.res img.pimg,.intro .rdy img.pimg{width:100%;height:100%}
 .res img.pimg{width:36px;height:36px}.intro .rdy img.pimg{width:28px;height:28px}
+.set{flex-wrap:wrap}.set .nd{flex-basis:100%;margin:4px 0 0;font-size:12.5px;line-height:1.45;color:#6b5a85}
+.cht u{text-decoration:none;font-weight:800;color:#ffd84d}
+.mebox .cnt b.esc{color:#2ed3b7}.mebox .cnt b.out{color:#ff6b6b}
+.st.fin{opacity:.92}.st.fin .tok{filter:none;box-shadow:0 0 0 3px #2ed3b7,0 0 16px rgba(46,211,183,.5)}
+.boomfx{position:fixed;width:0;height:0;z-index:90;pointer-events:none}
+.boomfx .ring{position:absolute;left:-55px;top:-55px;width:110px;height:110px;border-radius:50%;border:5px solid #ff3b3b;box-shadow:0 0 20px #ff3b3b;opacity:0;animation:zing .34s ease-out both}
+.boomfx .r2{animation-delay:.35s;border-color:#ff7a2a}.boomfx .r3{animation-delay:.7s;border-color:#ffd23f}
+@keyframes zing{0%{transform:scale(1.4);opacity:0}40%{opacity:1}100%{transform:scale(.5);opacity:0}}
+.boomfx .core{position:absolute;left:-90px;top:-90px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,#fff 0,#ffe36b 25%,#ff7a2a 50%,rgba(255,59,59,0) 70%);opacity:0;transform:scale(.2);animation:bang .7s cubic-bezier(.2,.8,.3,1) 1.05s both}
+@keyframes bang{0%{opacity:1;transform:scale(.2)}60%{opacity:1}100%{opacity:0;transform:scale(2.2)}}
+.boomfx .bp{position:absolute;left:-7px;top:-10px;width:14px;height:20px;border-radius:3px;border:2px solid #fff;opacity:0;animation:bpf .9s cubic-bezier(.15,.8,.4,1) 1.05s both}
+@keyframes bpf{0%{opacity:1;transform:translate(0,0) rotate(0)}100%{opacity:0;transform:translate(var(--dx),calc(var(--dy) + 60px)) rotate(var(--rr))}}
+.boomfx b{position:absolute;left:0;top:0;transform:translate(-50%,-50%) scale(0);font-size:54px;font-weight:900;color:#fff;-webkit-text-stroke:6px #c81d25;paint-order:stroke fill;animation:bangt .9s ease-out 1.05s both;white-space:nowrap}
+@keyframes bangt{0%{transform:translate(-50%,-50%) scale(0) rotate(-15deg)}30%{transform:translate(-50%,-50%) scale(1.25) rotate(4deg)}60%{transform:translate(-50%,-50%) scale(1) rotate(0);opacity:1}100%{transform:translate(-50%,-80%) scale(1);opacity:0}}
+body.quake #center,body.quake #seatz,body.quake #handz{animation:quake .45s linear}
+@keyframes quake{0%,100%{translate:0 0}20%{translate:-8px 4px}40%{translate:7px -5px}60%{translate:-5px 3px}80%{translate:4px -2px}}
+.cht u{text-decoration:none;font-weight:800;color:#ffd84d}
 </style>
 </head>
 <body>
@@ -925,7 +942,7 @@ const KD={
  rev:{n:'방향 전환',p:'base',ic:'rev',d:'진행 방향을 뒤집음. 2명이면 건너뛰기.'},
  d2:{n:'+2',p:'base',tx:'+2',dv:2,d:'다음 사람 2장.'},
  wild:{n:'와일드',p:'base',w:1,d:'색을 바꿈.'},
- w4:{n:'와일드 +4',p:'base',w:1,tx:'+4',dv:4,d:'색 바꾸고 다음 사람 4장. 낼 색이 있는데 냈다면 도전당할 수 있음.'},
+ w4:{n:'와일드 +4',p:'base',w:1,tx:'+4',dv:4,d:'색을 바꾸고 다음 사람이 4장 받고 쉼. 바닥 색 카드가 손에 하나도 없을 때만 낼 수 있음. (바닥이 빨강이면 빨강이 없을 때만)'},
  wshuf:{n:'와일드 셔플',p:'base',w:1,ic:'wshuf',d:'모두의 손패를 모아 섞어 다음 사람부터 다시 나눔.'},
  skip2:{n:'2칸 건너뛰기',p:'ultra',ic:'skip2',d:'다음 두 사람을 건너뜀.'},
  every1:{n:'모두 +1',p:'ultra',tx:'+1',si:'people',d:'나 빼고 전원 1장씩.'},
@@ -934,7 +951,7 @@ const KD={
  reflect:{n:'반사',p:'ultra',ic:'reflect',d:'+카드가 쌓였을 때 색 상관없이 내서 던진 사람에게 그대로 되돌림. 평소엔 방향 전환.'},
  gift:{n:'선물',p:'ultra',ic:'gift',tg:'gift',d:'내 카드 한 장을 골라 원하는 사람에게 줌. 마지막 한 장은 못 줌.'},
  freeze:{n:'얼음',p:'ultra',ic:'freeze',tg:'one',d:'고른 사람의 다음 차례 한 번을 얼림.'},
- wcopy:{n:'와일드 복사',p:'ultra',w:1,ic:'copy',d:'바로 밑에 깔린 카드의 효과를 한 번 더 발동.'},
+ wcopy:{n:'와일드 복사',p:'ultra',w:1,ic:'copy',d:'바로 밑에 깔린 카드의 효과를 똑같이 한 번 더 발동. (+2 위면 +2, 건너뛰기 위면 건너뛰기)'},
  wreveal:{n:'와일드 공개',p:'ultra',w:1,ic:'eye',tg:'one',d:'고른 사람의 손패를 그 사람 다음 차례가 끝날 때까지 모두에게 공개.'},
  skipall:{n:'모두 건너뛰기',p:'mercy',ic:'skipall',d:'나 빼고 전부 건너뛰고 내가 한 번 더.'},
  all:{n:'몽땅 버리기',p:'mercy',ic:'all',si:'down',d:'손에 든 같은 색 카드를 전부 같이 버림.'},
@@ -948,8 +965,8 @@ const KD={
  wd2:{n:'와일드 +2',p:'flip',w:1,tx:'+2',dv:2,d:'색 바꾸고 다음 사람 2장.'},
  wdc:{n:'와일드 드로우 컬러',p:'flip',w:1,ic:'drop',d:'내가 고른 색이 나올 때까지 다음 사람이 뽑고 쉼(최대 15장).'},
  trade:{n:'손패 교환',p:'attack',ic:'swap',tg:'one',d:'고른 사람과 손패를 통째로 바꿈.'},
- whit2:{n:'와일드 히트 2',p:'attack',w:1,tx:'×2',si:'burst',d:'다음 사람이 발사기를 두 번 누르고 쉼.'},
- wallhit:{n:'와일드 올 히트',p:'attack',w:1,ic:'burst',si:'people',d:'나 빼고 전원 발사기 한 번.'},
+ whit2:{n:'와일드 히트 2',p:'attack',w:1,tx:'×2',si:'burst',d:'다음 사람이 발사기(0~6장 무작위 뽑기)를 두 번 돌리고 쉼.'},
+ wallhit:{n:'와일드 올 히트',p:'attack',w:1,ic:'burst',si:'people',d:'나 빼고 모두 발사기(0~6장 무작위 뽑기)를 한 번씩 돌림.'},
  wskip:{n:'와일드 건너뛰기',p:'allwild',w:1,ic:'skip',d:'다음 사람 건너뛰기.'},
  wrev:{n:'와일드 방향 전환',p:'allwild',w:1,ic:'rev',d:'방향 전환.'},
  wskip2:{n:'와일드 2칸 건너뛰기',p:'allwild',w:1,ic:'skip2',d:'두 사람 건너뛰기.'},
@@ -957,7 +974,7 @@ const KD={
  wswap:{n:'와일드 강제 교환',p:'allwild',w:1,ic:'swapu',tg:'one',d:'고른 사람과 손패 교환.'},
  vote:{n:'포인트 테이큰',p:'party',ic:'hand',d:'모두가 한 명씩 지목하고, 받은 표만큼 뽑음.'},
  wlink:{n:'와일드 운명공동체',p:'party',w:1,ic:'link',tg:'two',d:'두 사람을 묶음. 라운드 끝까지 한 명이 뽑으면 다른 한 명도 똑같이 뽑음.'},
- wpile:{n:'와일드 파일 업',p:'party',w:1,ic:'pileup',d:'미니 더미를 열고 다음 사람부터 같은 색을 올림. 못 올리는 사람이 전부 가져가고 쉼.'},
+ wpile:{n:'와일드 파일 업',p:'party',w:1,ic:'pileup',d:'내가 고른 색으로 작은 더미를 열어요. 다음 사람부터 그 색 카드를 한 장씩 올리고, 못 올리는 사람이 쌓인 카드를 전부 가져가고 쉼.'},
  w5050:{n:'와일드 50/50',p:'gold',w:1,ic:'coin',d:'동전을 던져 나 또는 다음 사람이 4장.'}
 };
 const PACKS=[
@@ -979,23 +996,26 @@ const RULES=[
  ['jump','끼어들기','맨 위 카드와 색·숫자까지 완전히 똑같은 카드가 있으면 내 차례가 아니어도 바로 낼 수 있어요. 차례는 끼어든 사람 다음으로 넘어가요.'],
  ['force','강제 내기','더미에서 뽑은 카드가 낼 수 있는 카드라면 넘기지 못하고 반드시 내야 해요.'],
  ['dtm','낼 때까지 뽑기','낼 카드가 없을 때 한 장이 아니라 낼 수 있는 카드가 나올 때까지 계속 뽑아요.'],
- ['bluff','+4 도전','와일드 +4는 같은 색 카드가 없을 때만 내야 해요. 맞은 사람이 도전해서 반칙이면 낸 사람이 4장, 아니면 도전한 사람이 6장을 받아요.'],
- ['catch','우노 잡기','1장 남았는데 UNO를 안 외친 사람이 있으면, 누구든 UNO 버튼(Enter)을 눌러 잡아서 2장을 먹일 수 있어요.'],
- ['launcher','발사기','카드를 뽑을 때 1장이 아니라 0~6장이 무작위로 튀어나와요. (우노 어택)'],
+ ['bluff','+4 거짓말 잡기','와일드 +4는 낼 카드가 없을 때 쓰는 비상 카드예요. 바닥 카드와 같은 색 카드가 손에 한 장이라도 있으면 +4를 내면 안 돼요. 예) 바닥이 빨강 5인데 손에 빨강 2가 있다 → +4 금지(그래도 몰래 낼 수는 있어요). 손에 빨강이 하나도 없다 → +4 OK. +4를 맞은 사람은 "의심하기"를 눌러 낸 사람 손패를 확인할 수 있어요. 몰래 낸 거면 낸 사람이 4장, 아니면 의심한 사람이 6장을 받아요.'],
+ ['catch','우노 잡기','1장 남았는데 UNO를 안 외친 사람이 있으면, 누구든 UNO 버튼(스페이스바)을 눌러 잡아서 2장을 먹일 수 있어요.'],
+ ['launcher','발사기','카드를 뽑을 때 1장이 아니라 0~6장이 무작위로 튀어나와요. 운이 좋으면 0장! (우노 어택 장난감 규칙)'],
  ['multi','겹쳐내기','같은 숫자(또는 같은 기호) 카드를 여러 장 한꺼번에 낼 수 있어요. 하나 내고 나면 같은 카드를 이어서 더 내거나 "그만 내기"를 눌러요. +2 두 장이면 +4, 건너뛰기 두 장이면 두 명을 건너뛰어요.'],
  ['run','연속 내기','숫자 카드를 낸 다음, 같은 색의 바로 다음 숫자(예: 빨강 5 → 빨강 6 → 빨강 7)가 있으면 이어서 계속 낼 수 있어요.'],
  ['slap','5에 손 치기','누가 숫자 5를 내면 모두 3초 안에 "탁!" 버튼(스페이스)을 눌러야 해요. 안 누르거나 가장 늦게 누른 사람이 2장을 받아요.'],
  ['team','2인 1팀','마주 앉은 두 사람이 한 팀이에요. 꼴찌 정하기면 두 명 모두 털어야 팀이 빠져나가고, 점수제면 한 명만 털어도 팀이 이겨요. (4명 이상 짝수일 때)']
 ];
 const NUMS=[
- {k:'rank',l:'끝내는 방식',o:[[true,'꼴찌 정하기'],[false,'1등 점수제']]},
- {k:'target',l:'목표 점수',o:[[200,'200'],[300,'300'],[500,'500'],[1000,'1000'],[0,'단판']]},
- {k:'hand',l:'시작 손패',o:[[5,'5장'],[7,'7장'],[10,'10장']]},
- {k:'timer',l:'턴 시간',o:[[0,'무제한'],[8,'8초'],[15,'15초'],[30,'30초']]},
- {k:'mercy',l:'머시 탈락',o:[[0,'없음'],[20,'20장'],[25,'25장'],[30,'30장']]}
+ {k:'rank',l:'끝내는 방식',o:[[true,'꼴찌 정하기','다 털어낸 순서대로 1등, 2등… 마지막까지 카드가 남은 한 명이 꼴찌. 점수는 안 써요.'],[false,'1등 점수제','한 명이 다 털면 그 판 끝. 남들 손에 남은 카드를 점수로 가져가고(숫자는 그 숫자, 특수 20, 와일드 50) 목표 점수에 먼저 닿으면 우승.']]},
+ {k:'target',l:'목표 점수',d:'1등 점수제일 때만 써요. 단판이면 한 판 이긴 사람이 바로 우승.',o:[[200,'200'],[300,'300'],[500,'500'],[1000,'1000'],[0,'단판']]},
+ {k:'hand',l:'시작 손패',d:'처음에 나눠 받는 카드 수. 적을수록 판이 빨리 끝나요.',o:[[5,'5장'],[7,'7장'],[10,'10장']]},
+ {k:'timer',l:'턴 시간',d:'한 차례에 쓸 수 있는 시간. 넘기면 자동으로 한 장 뽑고 넘어가요.',o:[[0,'무제한'],[8,'8초'],[15,'15초'],[30,'30초']]},
+ {k:'tlim',l:'턴 제한',o:[[-1,'자동','인원 × 25턴(2명 60 · 4명 100 · 8명 200, 최대 300). 다 되면 그 자리에서 끝내고 카드가 적은 순서로 순위를 매겨요.'],[100,'100턴','100턴이 지나면 그 자리에서 끝내고 카드가 적은 순서로 순위를 매겨요.'],[200,'200턴','200턴이 지나면 그 자리에서 끝내고 카드가 적은 순서로 순위를 매겨요.'],[0,'없음','누가 끝낼 때까지 계속해요. 대난투 같은 모드는 아주 길어질 수 있어요.']]},
+ {k:'mercy',l:'머시 탈락',d:'손패가 이 장수 이상 쌓이면 그 자리에서 탈락. 판이 무한히 늘어지는 걸 막아줘요.',o:[[0,'없음'],[20,'20장'],[25,'25장'],[30,'30장']]},
+ {k:'join',l:'중간 입장',o:[['play','바로 참가','게임 중에 들어온 사람도 시작 손패를 받고 바로 끼어요. (팀전은 구경만)'],['watch','구경만','게임 중에 들어오면 이번 게임은 구경하고 다음 판부터 같이 해요.'],['off','막기','게임 중에는 아무도 못 들어와요. 끊겼다 다시 들어오는 사람은 괜찮아요.']]},
+ {k:'leave',l:'나간 사람',o:[['bot','봇이 대신','접속이 끊기면 봇이 대신 카드를 내요. 다시 들어오면 바로 이어서 해요.'],['draw','뽑고 넘김','접속이 끊기면 차례마다 한 장 뽑고 넘어가요. 손패가 계속 늘어요.'],['out','탈락','접속이 끊기면 바로 탈락. 꼴찌 정하기면 꼴찌 쪽으로 가요.']]}
 ];
 const PK0={ultra:true,mercy:false,flip:false,attack:false,allwild:false,party:false,gold:false};
-const BASE={rank:true,multi:false,run:false,slap:false,orig:false,target:500,hand:7,timer:0,mercy:0,stack:true,sz:false,jump:false,force:false,dtm:false,bluff:true,catch:true,launcher:false,team:false,allwild:false,packs:PK0};
+const BASE={tlim:-1,join:'play',leave:'bot',rank:true,multi:false,run:false,slap:false,orig:false,target:500,hand:7,timer:0,mercy:0,stack:true,sz:false,jump:false,force:false,dtm:false,bluff:true,catch:true,launcher:false,team:false,allwild:false,packs:PK0};
 const ALLP={ultra:true,mercy:true,flip:true,attack:true,allwild:true,party:true,gold:true};
 const MODES=[
  {id:'original',n:'클래식',d:'진짜 우노 그대로. 0~9 공식 108장, 기본 규칙만.',c:'#e5383b',i:'<rect x="5" y="3" width="14" height="18" rx="3"/><path d="M12 8v8M9 11l3-3"/>',s:{orig:true,stack:false,packs:{ultra:false}}},
@@ -1150,6 +1170,7 @@ function joinRoom(){
    if(d.t==='view'){clearTimeout(to);V=d.v;recvAt=Date.now();render()}
    else if(d.t==='img'){IMG[d.k]=d.d;render()}
    else if(d.t==='full'){leaving=true;fail('방이 꽉 찼어요 (16명)')}
+   else if(d.t==='busy'){leaving=true;fail('게임 중이라 지금은 못 들어가요. 이번 판이 끝나면 다시 들어와 주세요')}
    else if(d.t==='kicked'){leaving=true;goHome('방장이 내보냈어요')}
   });
   hc.on('close',()=>{if(!leaving)goHome('방이 닫혔어요')});
@@ -1175,9 +1196,11 @@ function hostMsg(c,d){
   if(p&&p!==P[0]){p.conn=c;p.off=false;p.av=av;p.img=img;if(H.G)log(`${p.name} 다시 접속`)}
   else{
    if(P.length>=16){c.send({t:'full'});setTimeout(()=>c.close(),300);return}
+   if(H.phase!=='lobby'&&H.phase!=='intro'&&H.set.join==='off'){c.send({t:'busy'});setTimeout(()=>c.close(),300);return}
    let name=nm,k=2;while(P.some(x=>x.name===name))name=nm.slice(0,8)+k++;
    p={tok:String(d.tok||Math.random()),pid:newPid(),img,name,av,conn:c,off:false,hand:[],score:0,uno:false,dead:false};P.push(p);
-   if(H.G&&H.G.teams){p.dead=true;log(`${name} 입장 (팀전이라 이번 게임은 구경)`)}
+   if(H.G&&H.G.teams){p.dead=true;p.why='watch';log(`${name} 입장 (팀전이라 이번 게임은 구경)`)}
+   else if(H.G&&H.set.join==='watch'){p.dead=true;p.why='watch';log(`${name} 입장 (이번 게임은 구경)`)}
    else if(H.G&&H.phase==='play'){draw(P.length-1,H.set.hand,1);log(`${name} 난입! ${H.set.hand}장 받음`)}
   }
   P.forEach(q=>{if(q.img)IMG[q.pid]=q.img});
@@ -1191,7 +1214,7 @@ function hostClose(c){
  if(!H)return;const i=H.players.findIndex(p=>p.conn===c);if(i<1)return;
  const p=H.players[i];
  if(H.phase==='lobby')H.players.splice(i,1);
- else{p.off=true;p.conn=null;log(`${p.name} 연결 끊김`);const G=H.G;if(G&&H.phase==='play'){if(G.cur===i&&!G.sub)G.deadline=Date.now()+1500;if(G.sub&&G.sub.t==='vote'){if(G.sub.votes[i]==null&&!p.dead){G.sub.votes[i]=rnd(aliveIdx().filter(x=>x!==i));checkVote()}}else if(G.sub&&G.sub.who===i)G.sub.until=Math.min(G.sub.until,Date.now()+1500)}
+ else{p.off=true;p.conn=null;log(`${p.name} 연결 끊김`);const G=H.G;if(G&&H.phase==='play'&&H.set.leave==='out')leaveOut(i);else if(G&&H.phase==='play'){if(G.cur===i&&!G.sub)G.deadline=Date.now()+1500;if(G.sub&&G.sub.t==='vote'){if(G.sub.votes[i]==null&&!p.dead){G.sub.votes[i]=rnd(aliveIdx().filter(x=>x!==i));checkVote()}}else if(G.sub&&G.sub.who===i)G.sub.until=Math.min(G.sub.until,Date.now()+1500)}
   if(H.phase==='intro'&&H.players.every((q,j)=>q.off||H.ready[j]))startGame()}
  hb();
 }
@@ -1225,10 +1248,10 @@ function act(i,d){
 }
 function viewFor(i){
  const P=H.players,G=H.G;
- const v={code:H.code,me:i,phase:H.phase,mode:H.mode,set:H.set,ready:H.ready?Object.keys(H.ready).map(Number):[],players:P.map((p,j)=>({pid:p.pid,name:p.name,av:p.av,score:p.score,n:p.hand.length,off:p.off,uno:p.uno,dead:p.dead,fin:!!p.fin,rk:G&&G.ranks?G.ranks.indexOf(j)+1:0,team:G?tm(j):null,fz:!!(G&&G.frozen[j]),hand:G&&G.reveal[j]&&j!==i?p.hand:null}))};
+ const v={code:H.code,me:i,phase:H.phase,mode:H.mode,set:H.set,ready:H.ready?Object.keys(H.ready).map(Number):[],players:P.map((p,j)=>({pid:p.pid,name:p.name,av:p.av,score:p.score,n:p.hand.length,off:p.off,uno:p.uno,dead:p.dead,why:p.why||null,fin:!!p.fin,rk:G&&G.ranks?G.ranks.indexOf(j)+1:0,team:G?tm(j):null,fz:!!(G&&G.frozen[j]),hand:G&&G.reveal[j]&&j!==i?p.hand:null}))};
  if(G){const S=G.sub;v.g={top:G.discard[G.discard.length-1],color:G.color,dir:G.dir,cur:G.cur,pending:G.pending,plast:G.plast,deckN:G.deck.length,log:G.log.slice(0,12),unoMiss:G.unoMiss,
   drew:G.cur===i?G.drew:null,dbl:G.cur===i&&G.dbl,left:G.deadline?Math.max(0,G.deadline-Date.now()):0,total:G.total||0,round:G.round,turn:G.turn,lastBy:G.lastBy,chain:G.cur===i?G.chain||null:null,cd:G.cdUntil?Math.max(0,G.cdUntil-Date.now()):0,hand:P[i].hand,result:G.result,
-  chal:!!(H.set.bluff&&G.w4chk&&G.pending&&G.cur===i&&G.plastBy===G.w4chk.by),must:G.cur===i&&mustPlay(),links:G.links,teams:G.teams,
+  rt:Math.min(G.rt||0,G.tmax||0),tmax:G.tmax||0,chalc:G.w4prev,chal:!!(H.set.bluff&&G.w4chk&&G.pending&&G.cur===i&&G.plastBy===G.w4chk.by),must:G.cur===i&&mustPlay(),links:G.links,teams:G.teams,
   sub:S?{t:S.t,who:S.who,col:S.col,pile:S.pile,hits:S.hits?Object.keys(S.hits).map(Number):null,voted:S.votes?Object.keys(S.votes).map(Number):null,left:Math.max(0,S.until-Date.now()),total:S.total}:null}}
  return v;
 }
@@ -1240,6 +1263,7 @@ function hb(){
 setInterval(()=>{
  if(!H||!H.G||H.phase!=='play')return;const G=H.G;
  if(G.sub){if(Date.now()>G.sub.until){autoSub();postCheck();hb()}}
+ else if(G.tmax&&G.rt>G.tmax){timeUp();hb()}
  else if(G.deadline&&Date.now()>G.deadline){autoMove();postCheck();hb()}
 },300);
 
@@ -1297,7 +1321,7 @@ function startGame(){
 function newRound(){
  const G=H.G,P=P_();
  G.round++;G.dir=1;G.unoMiss=null;G.result=null;G.log=[];G.sub=null;G.links=[];G.frozen={};G.reveal={};G.burn=0;clearPending();
- P.forEach((p,i)=>{p.hand=[];p.uno=false;p.dead=!!(G.teams&&i>=G.tn*2);p.fin=false});G.ranks=[];G.elim=[];G.teamRanks=[];G.chain=null;
+ P.forEach((p,i)=>{p.hand=[];p.uno=false;p.dead=!!(G.teams&&i>=G.tn*2)||!!(p.off&&H.set.leave==='out');p.why=p.dead?(p.off?'left':'watch'):null;p.fin=false});G.ranks=[];G.elim=[];G.teamRanks=[];G.chain=null;G.rt=0;{const tl=H.set.tlim,al=P.filter((p,i)=>!(G.teams&&i>=G.tn*2)).length;G.tmax=tl===-1?Math.min(300,Math.max(60,al*25)):tl||0}
  G.deck=buildDeck();G.discard=[];
  for(let r=0;r<H.set.hand;r++)P.forEach((p,i)=>{if(!p.dead)draw(i,1,1)});
  let fi=G.deck.findIndex(c=>c.k==='n');if(fi<0)fi=G.deck.length-1;
@@ -1314,6 +1338,7 @@ function startTurn(){
   if(G.frozen[G.cur]&&!G.pending){delete G.frozen[G.cur];log(`${P[G.cur].name}, 얼음! 한 번 쉼`);G.cur=nx(G.cur,1);continue}
   break;
  }
+ G.rt=(G.rt||0)+1;
  G.total=P[G.cur].off?800:H.set.timer*1000;G.deadline=G.total?Date.now()+G.total:0;
 }
 function endTurn(skip){const G=H.G;P_().forEach(p=>{if(p.hand.length!==1)p.uno=false});delete G.reveal[G.cur];G.cur=nx(G.cur,1+skip);startTurn()}
@@ -1328,13 +1353,13 @@ function gDraw(i){
  const last=g[g.length-1];G.drew=last?last.id:-1;
 }
 function gPass(i){const G=H.G;if(H.phase!=='play'||G.cur!==i||G.sub)return;if(G.chain){const sk=G.chainSkip||0;G.chain=null;G.chainSkip=0;log(`${P_()[i].name}, 그만 내기`);endTurn(sk);return}if(G.drew===null&&!G.dbl)return;if(!G.dbl&&mustPlay())return;if(!G.dbl)log(`${P_()[i].name}, 넘김`);endTurn(0)}
-function gUno(i){const G=H.G,p=P_()[i];if(!G||H.phase!=='play'||p.dead||p.uno||p.hand.length>2)return;p.uno=true;if(p.hand.length===1){if(G.unoMiss===i)G.unoMiss=null;log(`${p.name}: "우노!"`)}}
+function gUno(i){const G=H.G,p=P_()[i];if(!G||H.phase!=='play'||p.dead||p.uno||p.hand.length!==1)return;p.uno=true;if(p.hand.length===1){if(G.unoMiss===i)G.unoMiss=null;log(`${p.name}: "우노!"`)}}
 function gCatch(i){const G=H.G;if(!G||H.phase!=='play')return;const m=G.unoMiss;if(m==null||m===i||P_()[m].hand.length!==1){G.unoMiss=null;return}draw(m,2);log(`${P_()[i].name} → ${P_()[m].name} 우노 안 외침 적발! +2`);G.unoMiss=null}
 function gChal(i){
  const G=H.G;if(H.phase!=='play'||G.sub||!(H.set.bluff&&G.w4chk&&G.pending&&G.cur===i&&G.plastBy===G.w4chk.by))return;
  const by=G.w4chk.by,n=G.pending;
- if(G.w4chk.guilty){clearPending();draw(by,n);log(`도전 성공! ${P_()[by].name} 거짓말 → ${n}장`)}
- else{clearPending();draw(i,n+2);log(`도전 실패! ${P_()[i].name} ${n+2}장 받고 쉼`);endTurn(0)}
+ if(G.w4chk.guilty){clearPending();draw(by,n);log(`거짓말 들킴! ${P_()[by].name}, 낼 수 있는 카드를 숨기고 +4 → ${n}장`)}
+ else{clearPending();draw(i,n+2);log(`정직했음! 의심한 ${P_()[i].name} ${n+2}장 받고 쉼`);endTurn(0)}
 }
 function swapHands(a,b){const P=P_(),t=P[a].hand;P[a].hand=P[b].hand;P[b].hand=t;P.forEach(p=>p.uno=false);H.G.unoMiss=null}
 function validTarget(t,i,self){return Number.isInteger(t)&&P_()[t]&&!P_()[t].dead&&(self||t!==i)}
@@ -1352,6 +1377,7 @@ function gPlay(i,d){
  if(nd.tg==='gift'&&!(validTarget(d.target,i)&&p.hand.some(x=>x.id===d.gift&&x.id!==c.id)))return;
  if(G.cur!==i){G.cur=i;G.drew=null;G.dbl=false;log(`${p.name} 끼어들기!`)}
  G.lastBy=i;
+ if(c.k==='w4')G.w4prev=G.color;
  const guilty=c.k==='w4'&&set.bluff&&!set.allwild?p.hand.some(x=>x.id!==c.id&&x.c===G.color):null;
  p.hand=p.hand.filter(x=>x.id!==c.id);G.discard.push(c);G.drew=null;
  if(c.c==='w')G.color=set.allwild?'w':nd.col?d.col:G.color;else G.color=c.c;
@@ -1375,7 +1401,7 @@ function finishRank(i){
  if(G.unoMiss===i)G.unoMiss=null;G.links=G.links.filter(l=>!l.includes(i));
  log(`${P[i].name} ${G.ranks.length}등으로 탈출!`);
  if(G.teams){const t=tm(i),mates=P.map((p,j)=>j).filter(j=>tm(j)===t);G.teamRanks=G.teamRanks||[];
-  if(mates.every(j=>P[j].fin)&&!G.teamRanks.includes(t)){G.teamRanks.push(t);log(`${mates.map(j=>P[j].name).join(' & ')} 팀 탈출!`)}
+  if(mates.every(j=>P[j].fin||P[j].dead)&&!G.teamRanks.includes(t)){G.teamRanks.push(t);log(`${mates.map(j=>P[j].name).join(' & ')} 팀 탈출!`)}
   const left=new Set(aliveIdx().map(j=>tm(j)));if(left.size<=1){endRound(G.ranks[0]);return true}return false}
  const al=aliveIdx();
  if(al.length<=1){endRound(G.ranks[0]);return true}
@@ -1469,8 +1495,35 @@ function autoPlay(i,c){const P=P_(),nd=needs(c,P[i].hand.length,H.set),others=al
  if(nd.tg==='two'){const s=shuffle([...al]);d.target=s[0];d.t2=s[1]}
  gPlay(i,d);
 }
+function leaveOut(i){const G=H.G,P=P_(),p=P[i];if(p.dead)return;
+ p.dead=true;p.why='left';G.deck=shuffle(G.deck.concat(p.hand));p.hand=[];p.uno=false;G.elim.push(i);log(`${p.name} 나가서 탈락`);
+ if(G.unoMiss===i)G.unoMiss=null;delete G.frozen[i];G.links=G.links.filter(l=>!l.includes(i));if(G.plastBy===i)G.plastBy=null;
+ const side=j=>G.teams?'t'+tm(j):'p'+j,al=aliveIdx();
+ if(new Set(al.map(side)).size<=1){G.sub=null;clearPending();endRound(al[0]);return}
+ const S=G.sub;
+ if(S){if(S.t==='vote'){Object.keys(S.votes).forEach(k=>{if(+k===i||S.votes[k]===i)delete S.votes[k]});checkVote()}else if(S.who===i)S.until=Date.now()}
+ else if(G.cur===i){G.cur=nx(G.cur,1);startTurn()}
+}
+function timeUp(){const G=H.G;G.sub=null;clearPending();log(`턴 제한(${G.tmax}턴) 도달! 카드가 적은 순서로 끝냅니다`);
+ const al=aliveIdx().sort((a,b)=>P_()[a].hand.length-P_()[b].hand.length);endRound(G.ranks.length?G.ranks[0]:al[0]);if(G.result)G.result.timeup=true}
+function botColor(p){const cnt={};p.hand.forEach(c=>{if('rygb'.includes(c.c))cnt[c.c]=(cnt[c.c]||0)+1});return Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a])[0]||rnd(['r','y','g','b'])}
+function botPlay(i,c){const P=P_(),p=P[i],nd=needs(c,p.hand.length,H.set),others=aliveIdx().filter(j=>j!==i),al=aliveIdx();
+ const big=others.sort((a,b)=>P[a].hand.length-P[b].hand.length);
+ const d={id:c.id,col:botColor({hand:p.hand.filter(x=>x.id!==c.id)})};
+ if(nd.tg==='one')d.target=big[0];
+ if(nd.tg==='gift'){d.target=big[big.length-1];d.gift=p.hand.filter(x=>x.id!==c.id).sort((a,b)=>pts(b)-pts(a))[0].id}
+ if(nd.tg==='two'){const s=shuffle([...al]);d.target=s[0];d.t2=s[1]}
+ gPlay(i,d)}
+function botMove(){const G=H.G,i=G.cur,p=P_()[i],t0=G.turn,h0=p.hand.length;
+ const ok=p.hand.filter(c=>okNow(c,st(),H.set)).sort((a,b)=>(!!KD[a.k].w-!!KD[b.k].w)||(b.c===G.color)-(a.c===G.color));
+ if(ok.length){botPlay(i,ok[0]);if(H.phase==='play'&&!p.dead&&p.hand.length===1)gUno(i);if(H.phase!=='play'||G.turn!==t0||p.hand.length!==h0||G.sub||G.cur!==i)return}
+ drawMove(i)}
 function autoMove(){
  const G=H.G,i=G.cur,p=P_()[i];
+ if(p.off&&H.set.leave==='bot'){botMove();return}
+ drawMove(i)}
+function drawMove(i){
+ const G=H.G,p=P_()[i];
  if(!p.off)log(`${p.name}, 시간 초과!`);
  if(G.pending){gDraw(i);return}
  if(G.dbl||G.chain){gPass(i);return}
@@ -1487,7 +1540,7 @@ function postCheck(){
  for(const i of over){
   const left=new Set(aliveIdx().filter(j=>j!==i).map(side));
   if(left.size===0){log(`${P[i].name}, ${lim}장을 넘겼지만 마지막 생존자라 버팀!`);break}
-  const p=P[i];p.dead=true;G.burn+=p.hand.reduce((s,c)=>s+pts(c),0);G.deck=shuffle(G.deck.concat(p.hand));p.hand=[];p.uno=false;G.elim.push(i);log(`${p.name} 탈락! ${lim}장을 넘겼어요`);ch=true;
+  const p=P[i];p.dead=true;p.why='mercy';G.burn+=p.hand.reduce((s,c)=>s+pts(c),0);G.deck=shuffle(G.deck.concat(p.hand));p.hand=[];p.uno=false;G.elim.push(i);log(`${p.name} 탈락! ${lim}장을 넘겼어요`);ch=true;
   if(G.unoMiss===i)G.unoMiss=null;delete G.frozen[i];G.links=G.links.filter(l=>!l.includes(i));
   if(left.size===1)break;
  }
@@ -1537,7 +1590,7 @@ function renderLobby(){
  $('modes').innerHTML=MODES.map(m=>`<button class="mode ${V.mode===m.id?'on':''}" data-a="mode" data-v="${m.id}" ${dis}><span class="ic" style="background:${m.c}">${svg(m.i,2.4)}</span><b>${m.n}</b><span>${m.d}</span></button>`).join('');
  const packs=PACKS.map(([k,n,d])=>{const on=k==='base'?!s.allwild:!s.allwild&&s.packs[k];const lab=k==='base'&&s.allwild?'올 와일드 덱':n;return`<button class="chipb ${on||(k==='base'&&s.allwild)?'on':''}" data-a="pack" data-k="${k}" title="${esc(d)}" ${dis}>${lab}</button>`}).join('');
  const rules=RULES.map(([k,n,d])=>`<button class="rrow ${s[k]?'on':''}" data-a="rule" data-k="${k}" ${dis}><span class="sw2"><i></i></span><span class="rt"><b>${n}</b><small>${esc(d)}</small></span></button>`).join('');
- const nums=NUMS.map(x=>`<div class="set"><span>${x.l}</span><div class="pills">${x.o.map(([v,l])=>`<button class="pill ${s[x.k]===v?'on':''}" data-a="num" data-k="${x.k}" data-v='${JSON.stringify(v)}' ${dis}>${l}</button>`).join('')}</div></div>`).join('');
+ const nums=NUMS.map(x=>{const cur=x.o.find(o=>o[0]===s[x.k]),nd=(cur&&cur[2])||x.d||'';return`<div class="set"><span>${x.l}</span><div class="pills">${x.o.map(([v,l])=>`<button class="pill ${s[x.k]===v?'on':''}" data-a="num" data-k="${x.k}" data-v='${JSON.stringify(v)}' ${dis}>${l}</button>`).join('')}</div>${nd?`<p class="nd">${nd}</p>`:''}</div>`}).join('');
  const deckN=(()=>{try{return deckOnceC(s).length}catch(e){return 0}})();
  const packBox=s.orig?`<p class="sub2">오리지널: 공식 우노 108장(숫자 0~9, 건너뛰기, 방향 전환, +2, 와일드, 와일드 +4)만 써요. 팩을 켜면 오리지널이 꺼져요.</p>`:s.allwild?`<p class="sub2">올 와일드: 모든 카드가 와일드인 전용 덱이에요. 기본 칩을 누르면 일반 덱으로 돌아가요.</p>`:`<p class="sub2">덱 한 벌 ${deckN}장. 사람이 많으면 자동으로 벌 수가 늘어나요.</p>`;
  $('sets').innerHTML=`<div class="summ"><b>적용된 룰</b>${rulesSummary(s,V.mode,P.length).map(x=>`<p><em>${x[0]}</em>${esc(x[1])}</p>`).join('')}</div>
@@ -1551,16 +1604,19 @@ function renderLobby(){
 }
 function rulesSummary(s,mode,n){
  const out=[],m=(MODES.find(x=>x.id===mode)||{n:'커스텀'}).n;
- out.push(['모드',`${m} · 시작 손패 ${s.hand}장${s.timer?` · 한 턴 ${s.timer}초`:''}`]);
+ const tl=s.tlim===-1?Math.min(300,Math.max(60,n*25)):s.tlim;
+ out.push(['모드',`${m} · 시작 손패 ${s.hand}장${s.timer?` · 한 턴 ${s.timer}초`:''}${tl?` · ${tl}턴 제한`:''}`]);
  out.push(['기본','내 차례에 맨 위 카드와 같은 색이나 같은 숫자(기호) 카드를 한 장 내요. 낼 게 없으면 더미에서 한 장 뽑아요.']);
  out.push(['승리',s.rank&&s.team&&n>=4&&n%2===0?'팀원 두 명이 모두 손패를 털어야 팀이 빠져나가요. 마지막까지 남은 팀이 꼴찌 팀!':s.rank?'손패를 다 털면 순서대로 1등, 2등…으로 빠져나가요. 마지막까지 카드가 남은 한 명이 꼴찌!':s.target?`손패를 먼저 다 털면 라운드 승리. 남들 손에 남은 카드 점수를 가져가서 ${s.target}점을 먼저 넘으면 최종 우승.`:'손패를 먼저 다 털면 바로 우승인 단판 승부.']);
- out.push(['우노','카드가 1장 남으면 UNO 버튼(Enter)! '+(s.catch?'안 외친 사람이 있으면 누구든 눌러서 잡을 수 있어요(+2장).':'')]);
+ out.push(['우노','카드가 딱 1장 남은 순간 UNO 버튼(스페이스바)! 2장일 때는 미리 못 눌러요. '+(s.catch?'안 외친 사람이 있으면 누구든 눌러서 잡을 수 있어요(+2장).':'')]);
  if(s.orig)out.push(['카드','공식 우노 108장: 숫자 0~9, 건너뛰기, 방향 전환, +2, 와일드, 와일드 +4.']);
  else if(s.allwild)out.push(['카드','모든 카드가 와일드라 아무 카드나 낼 수 있어요.']);
  else{const on=PACKS.filter(([k])=>k!=='base'&&s.packs[k]).map(p=>p[1]);out.push(['카드','숫자 0~11과 기본 특수 카드'+(on.length?` + ${on.join(', ')} 팩`:'')+'. '+(matchMedia('(hover:hover)').matches?'카드에 마우스를 올리면':'카드를 한 번 누르면')+' 설명이 떠요.'])}
  RULES.forEach(([k,nm,d])=>{if(s[k]&&k!=='catch')out.push([nm,d])});
  out.__all=true;
  if(s.mercy)out.push(['머시 탈락',`손패가 ${s.mercy}장 이상이 되면 바로 탈락. 마지막까지 남으면 승리.`]);
+ if(tl)out.push(['턴 제한',`${tl}턴이 지나면 그 자리에서 끝나고, 손패가 적은 순서로 순위가 정해져요.`]);
+ out.push(['나간 사람',s.leave==='bot'?'접속이 끊기면 봇이 대신 카드를 내요. 다시 들어오면 이어서 해요.':s.leave==='out'?'접속이 끊기면 바로 탈락이에요.':'접속이 끊기면 차례마다 한 장 뽑고 넘어가요.']);
  if(s.team&&!(n>=4&&n%2===0))out.push(['참고','팀전은 4명 이상 짝수일 때만 돼요. 지금 인원이면 개인전으로 진행해요.']);
  return out;
 }
@@ -1605,6 +1661,8 @@ function sfx(n,delay=0){
   case 'bad':[392,330,262,196].forEach((f,i)=>tone('sawtooth',f,f*.96,t+.13*i,.2,.14,m));break;
   case 'click':tone('sine',1400,900,t,.04,.14,m);break;
   case 'pick':tone('triangle',660,990,t,.08,.25,m);break;
+  case 'zing1':case 'zing2':case 'zing3':{const f={zing1:330,zing2:440,zing3:587}[n];tone('sawtooth',f,f*1.5,t,.28,.16,m);tone('square',f*2,f*3,t,.22,.06,m);break}
+  case 'boom':nz(t,.9,1,'lowpass',2600,90,1,m);tone('sine',120,28,t,.8,1,m);tone('sawtooth',90,30,t,.35,.3,m);break;
   case 'tick':tone('square',1200,0,t,.03,.08,m);break;
  }
 }
@@ -1703,20 +1761,34 @@ function fly(from,to,html,delay=0,rot=0,cls=''){
  requestAnimationFrame(()=>requestAnimationFrame(()=>{d.style.transform=`translate(-50%,-50%) translate(${b.x-a.x}px,${b.y-a.y}px) rotate(${rot}deg)`}));
  setTimeout(()=>d.remove(),560+delay);
 }
+function whyTxt(p,short){const w=p.why;if(w==='mercy')return short?`${V.set.mercy}장 초과`:`${V.set.mercy}장 넘어서 탈락`;if(w==='left')return short?'나감':'나가서 탈락';if(w==='watch')return'구경 중';return'탈락'}
+let prevDead={};
+function deathFx(){if(!V||!V.g||V.phase!=='play'){prevDead={};return}
+ V.players.forEach((p,j)=>{const k=p.pid||j,was=prevDead[k];prevDead[k]=!!p.dead;if(was===false&&p.dead&&!p.fin&&p.why==='mercy')boom(j,p)})}
+function boom(j,p){const el=j===V.me?$('mebox'):document.querySelector(`.st[data-seat="${j}"] .tok`)||document.querySelector(`.st[data-seat="${j}"]`);if(!el)return;
+ const r=el.getBoundingClientRect(),d=document.createElement('div');d.className='boomfx';d.style.left=(r.left+r.width/2)+'px';d.style.top=(r.top+r.height/2)+'px';
+ const C=['#e5383b','#2f6fde','#f2b705','#2a9d4b','#1b1f2e'];let parts='';for(let k=0;k<18;k++){const a=k/18*Math.PI*2+Math.random()*.3,dd=90+Math.random()*110;parts+=`<i class="bp" style="--dx:${Math.cos(a)*dd}px;--dy:${Math.sin(a)*dd}px;--rr:${Math.random()*720-360}deg;background:${C[k%5]}"></i>`}
+ d.innerHTML=`<span class="ring"></span><span class="ring r2"></span><span class="ring r3"></span><span class="core"></span>${parts}<b>펑!</b>`;document.body.appendChild(d);
+ if(calm()){sfx('boom');setTimeout(()=>d.remove(),1800);return}
+ sfx('zing1');sfx('zing2',.35);sfx('zing3',.7);sfx('boom',1.05);
+ setTimeout(()=>{document.body.classList.add('quake');setTimeout(()=>document.body.classList.remove('quake'),450);pop('펑!','#ff4b55',`${p.name} · ${V.set.mercy}장 넘어서 탈락`)},1050);
+ setTimeout(()=>d.remove(),2400)}
+
 function pop(text,color,sub){if(calm()&&!text)return;const p=$('pop');p.innerHTML=`<div style="--pc:${color||'#ffd23f'}"><b>${esc(text)}</b>${sub?`<small>${esc(sub)}</small>`:''}</div>`;p.classList.remove('go');void p.offsetWidth;p.classList.add('go')}
 function shake(){if(calm())return;const t=$('tbl');t.classList.remove('shake');void t.offsetWidth;t.classList.add('shake')}
 function impact(){const p=$('impact');p.classList.remove('go');void p.offsetWidth;p.classList.add('go')}
 const popText=c=>{const k=KD[c.k];if(c.k==='n')return null;return k.tx&&!k.cap?k.tx+'!':k.n+'!'};
 function setPK(o){PK={...o,key:curKey};render()}
 function turnFlash(){const t=$('turnflash');t.classList.remove('go');void t.offsetWidth;t.classList.add('go')}
-function renderGame(){
+function renderGame(){renderGame0();try{deathFx()}catch(e){}}
+function renderGame0(){
  const g=V.g,P=V.players,n=P.length,S=g.sub,me=V.me,myP=P[me],play=V.phase==='play';
  const mine=play&&!S&&g.cur===me&&!myP.dead,pileMe=S&&S.t==='pile'&&S.who===me;
  curKey=g.round+':'+g.turn+(S?'s'+S.t+S.who:'');
  if(PK&&PK.key!==curKey)PK=null;
  if(lastRound!==g.round){pileHist=[];lastTop=null;prevN=null;lastLog=null;prevHand=null;lastRound=g.round;resShown=false}
  tableGeom();const tbl=$('tbl');tbl.style.setProperty('--cur',COL[g.color]==='#151515'?'#b388ff':COL[g.color]);tbl.classList.toggle('mine',!!(mine||pileMe));
- $('rinfo').innerHTML=`<b>${V.set.rank?'우노 대난투':g.round+'라운드'}</b><span>${(MODES.find(m=>m.id===V.mode)||{n:'커스텀'}).n} · ${V.set.rank?'꼴찌 정하기':V.set.target?`${V.set.target}점 먼저`:'단판'}${V.set.mercy?` · ${V.set.mercy}장 탈락`:''}</span>`;
+ $('rinfo').innerHTML=`<b>${V.set.rank?'우노 대난투':g.round+'라운드'}</b><span>${(MODES.find(m=>m.id===V.mode)||{n:'커스텀'}).n} · ${V.set.rank?'꼴찌 정하기':V.set.target?`${V.set.target}점 먼저`:'단판'}${g.tmax?` · ${g.rt}/${g.tmax}턴`:''}${V.set.mercy?` · ${V.set.mercy}장 탈락`:''}</span>`;
  if(S&&S.t==='vote'&&!myP.dead&&!S.voted.includes(me)&&voteKey!==curKey&&!(PK&&PK.vote))PK={t:'target',vote:1,key:curKey,msg:'지목할 사람을 고르세요',sub:'받은 표 수만큼 카드를 뽑아요',exclude:[me],cb:v=>{voteKey=curKey;send({a:'vote',v})}};
  if(S&&S.t==='roul'&&S.who===me&&!PK)PK={t:'color',key:curKey,msg:'룰렛 색을 고르세요',sub:'그 색이 나올 때까지 뒤집어 전부 가져가요',lock:1,cb:col=>send({a:'roul',col})};
  const picking=PK&&(PK.t==='target'||PK.t==='card');
@@ -1725,9 +1797,9 @@ function renderGame(){
  $('seatz').innerHTML=P.map((p,j)=>{
   const rel=(j-me+n)%n;if(!rel)return'';const s=seatPos(rel,n),on=(j===g.cur&&play&&!S)||(S&&S.who===j);
   const pick=PK&&PK.t==='target'&&!p.dead&&!(PK.exclude||[]).includes(j);
-  return`<div class="st ${on?'on':''} ${p.dead?'dead':''} ${p.off?'off':''} ${pick?'pick':''} ${miss===j?'miss':''} ${n>9?'sm':''}" style="left:${s.x}px;top:${s.y}px" data-seat="${j}">
+  return`<div class="st ${on?'on':''} ${p.fin?'fin':p.dead?'dead':''} ${p.off?'off':''} ${pick?'pick':''} ${miss===j?'miss':''} ${n>9?'sm':''}" style="left:${s.x}px;top:${s.y}px" data-seat="${j}">
    <div class="tok" ${on?'data-timer':''}><span>${face(p)}</span>${p.fin?`<i class="x rk">${p.rk}등</i>`:p.dead?'<i class="x">OUT</i>':''}</div>
-   <div class="si"><b>${teamDot(p.team)}${esc(p.name)}</b><span class="cnt"><i class="cic"></i>${p.fin?p.rk+'등 탈출':p.dead?'탈락':p.n+'장'}${p.fz?'<em class="fz">얼음</em>':''}${p.off?'<em>끊김</em>':''}</span></div>
+   <div class="si"><b>${teamDot(p.team)}${esc(p.name)}</b><span class="cnt"><i class="cic"></i>${p.fin?p.rk+'등 탈출':p.dead?whyTxt(p,1):p.n+'장'}${p.fz?'<em class="fz">얼음</em>':''}${p.off?'<em>끊김</em>':''}</span></div>
    ${p.n===1&&!p.dead?'<span class="unob">UNO</span>':''}${pick?'<span class="pickt">선택</span>':''}
    ${p.hand?`<div class="peekh">${sortHand(p.hand).map(c=>cardHTML(c,'mini')).join('')}</div>`:''}</div>`}).join('');
  // 가운데
@@ -1745,7 +1817,7 @@ function renderGame(){
  else if(S&&S.t==='vote')sub=`<b>지목 투표 ${S.voted.length}/${P.filter(p=>!p.dead).length}</b><span>모두 고를 때까지 기다리는 중 · 최대 ${Math.max(0,Math.ceil((S.left-(Date.now()-recvAt))/1000))}초</span>`;
  else if(S&&S.t==='roul')sub=`<b>컬러 룰렛</b><span>${esc(P[S.who].name)}, 색 고르는 중</span>`;
  $('subz').innerHTML=sub;$('subz').classList.toggle('hide',!sub);
- const tp=$('turnpill');if(tp){const who=S?S.who:g.cur;tp.innerHTML=!play?'':S&&S.t==='vote'?'<b>지목 투표 중</b>':S&&S.t==='slap'?'<b>탁! 손 치기</b>':`<i style="--pc:${pcol(P[who].av)}"></i><b>${who===me?'내 차례':esc(P[who].name)+' 차례'}</b>${g.chain?'<span>이어 내는 중</span>':''}`;tp.classList.toggle('me',who===me&&play)}
+ const tp=$('turnpill');if(tp){const who=S?S.who:g.cur;tp.innerHTML=!play?'':S&&S.t==='vote'?'<b>지목 투표 중</b>':S&&S.t==='slap'?'<b>탁! 손 치기</b>':`<i style="--pc:${pcol(P[who].av)}"></i><b>${who===me?'내 차례':esc(P[who].name)+' 차례'}</b>${g.chain?'<span>이어 내는 중</span>':g.tmax&&g.tmax-g.rt<=P.length*2?`<span>남은 턴 ${g.tmax-g.rt}</span>`:''}`;tp.classList.toggle('me',who===me&&play)}
  $('links').innerHTML=g.links&&g.links.length?`<b>운명공동체</b> ${g.links.map(([a,b])=>`${esc(P[a].name)} ↔ ${esc(P[b].name)}`).join(' · ')}`:'';
  if($('feed').dataset.k!==g.log[0]){$('feed').dataset.k=g.log[0]||'';$('feed').innerHTML=g.log[0]?`<li>${esc(g.log[0])}</li>`:''}
  // 연출
@@ -1757,14 +1829,14 @@ function renderGame(){
   if(t)setTimeout(()=>{pop(t,COL[g.top.c==='w'?g.color:g.top.c]);if(sn)sfx(sn);if(KD[g.top.k].dv>=6)shake()},calm()?0:330);
  }
  if(lastLog!==null){const fresh=[];for(const l of g.log){if(l===lastLog)break;fresh.push(l)}
-  fresh.reverse().forEach(l=>{if(l.includes('"우노!"')){pop('UNO!','#ff4b55',l.split(':')[0]);sfx('uno')}else if(l.includes('적발')){pop('잡았다!','#ff4b55','+2장');sfx('catch')}else if(l.includes('탈락!')){pop('탈락!','#9e9e9e',l.split(' ')[0]);sfx('bad')}else if(l.includes('도전 성공')){pop('도전 성공!','#2ed3b7');sfx('special')}else if(l.includes('도전 실패')){pop('도전 실패!','#ff4b55');sfx('bad')}else if(l.includes('끼어들기')){pop('끼어들기!','#2ed3b7');sfx('special')}else if(l.includes('얼음!')&&l.includes('쉼')){pop('얼음!','#7fd6ff');sfx('skip')}})}
+  fresh.reverse().forEach(l=>{if(l.includes('"우노!"')){pop('UNO!','#ff4b55',l.split(':')[0]);sfx('uno')}else if(l.includes('적발')){pop('잡았다!','#ff4b55','+2장');sfx('catch')}else if(l.includes('탈락!')&&!l.includes('장을 넘겼어요')){pop('탈락!','#9e9e9e',l.split(' ')[0]);sfx('bad')}else if(l.includes('거짓말 들킴')){pop('거짓말 들킴!','#2ed3b7',l.split(', ')[0].replace('거짓말 들킴! ','')+' +'+l.split('→ ')[1]);sfx('special')}else if(l.includes('정직했음')){pop('정직했어요!','#ff4b55','의심한 사람이 벌칙');sfx('bad')}else if(l.includes('끼어들기')){pop('끼어들기!','#2ed3b7');sfx('special')}else if(l.includes('얼음!')&&l.includes('쉼')){pop('얼음!','#7fd6ff');sfx('skip')}})}
  lastLog=g.log[0]||'';
  if(prevN&&prevN.length===n){P.forEach((p,j)=>{if(j===me)return;const d=p.n-prevN[j];if(d>0&&d<40){const to=document.querySelector(`.st[data-seat="${j}"] .tok`);for(let x=0;x<Math.min(d,6);x++){fly($('deck'),to,cardHTML({back:1}),x*80,0,'sm');if(x<4)sfx('draw',x*.08)}if(to){to.classList.remove('bump');void to.offsetWidth;to.classList.add('bump')}}})}
  prevN=P.map(p=>p.n);lastTop=g.top.id;
  // 내 자리
  const myOn=mine||pileMe;
  $('mebox').className='mebox'+(myOn?' on':'')+(PK&&PK.t==='target'&&PK.self&&!(PK.exclude||[]).includes(me)?' pick':'');
- $('mebox').innerHTML=`<div class="tok" ${myOn?'data-timer':''}><span>${face(myP)}</span></div><div class="si"><b>${teamDot(myP.team)}${esc(myP.name)}</b><span class="cnt">${myP.dead?'탈락 · 구경 중':`<i class="cic"></i>${g.hand.length}장${V.set.rank?'':' · '+myP.score+'점'}`}</span></div>${myP.uno&&g.hand.length<=2?'<span class="unob me">UNO</span>':''}`;
+ $('mebox').innerHTML=`<div class="tok" ${myOn?'data-timer':''}><span>${face(myP)}</span></div><div class="si"><b>${teamDot(myP.team)}${esc(myP.name)}</b><span class="cnt">${myP.fin?`<b class="esc">${myP.rk}등 탈출!</b> 구경 중`:myP.dead?`<b class="out">${whyTxt(myP)}</b> 구경 중`:`<i class="cic"></i>${g.hand.length}장${V.set.rank?'':' · '+myP.score+'점'}`}</span></div>${myP.uno&&g.hand.length<=2?'<span class="unob me">UNO</span>':''}`;
  if(myOn&&lastTurn!==curKey){sfx('turn',.15);if(!PK)setTimeout(turnFlash,newTop?900:0)}lastTurn=curKey;
  // 안내
  let hint='',tag='';
@@ -1789,8 +1861,8 @@ function renderGame(){
  // +4 도전 패널
  const cp=$('chalp'),showChal=mine&&g.chal&&!PK;
  cp.classList.toggle('hide',!showChal);tbl.classList.toggle('chal',!!showChal);
- if(showChal)cp.innerHTML=`<div class="cht"><b>${g.lastBy!=null?esc(P[g.lastBy].name)+'의 ':''}와일드 +4를 맞았어요 · 색은 ${CN[g.color]}</b><span>낸 사람이 같은 색 카드를 갖고 있었다면 반칙이에요.</span></div>
-  <div class="chb"><button class="gbtn" data-a="draw"><b>그냥 받기</b><small>+${g.pending}장 받고 쉬기</small></button><button class="gbtn m" data-a="chal"><b>도전하기</b><small>반칙이면 상대가 ${g.pending}장 · 아니면 내가 ${g.pending+2}장</small></button></div>
+ if(showChal)cp.innerHTML=`<div class="cht"><b>+4 맞음! 혹시 거짓말?</b><span>+4를 내기 직전 바닥은 <u>${g.chalc?CN[g.chalc]:'다른 색'}</u>이었어요. ${g.lastBy!=null?esc(P[g.lastBy].name):'상대'} 손에 <u>${g.chalc?CN[g.chalc]+' 카드':'그 색 카드'}</u>가 있었다면 +4를 내면 안 되는 거라 거짓말이에요.</span></div>
+  <div class="chb"><button class="gbtn" data-a="draw"><b>그냥 받기</b><small>내가 +${g.pending}장</small></button><button class="gbtn m" data-a="chal"><b>의심하기</b><small>거짓말이면 ${g.lastBy!=null?esc(P[g.lastBy].name):'상대'} +${g.pending}장 · 아니면 내가 +${g.pending+2}장</small></button></div>
   ${g.hand.some(c=>okNow(c,g,V.set))?'<p>손패의 +카드·방패·반사로 막을 수도 있어요</p>':''}`;
  // 손패
  const jumpOk=play&&!S&&!mine&&V.set.jump&&!g.pending&&!myP.dead;
@@ -1815,10 +1887,10 @@ function renderGame(){
   const se=SEL!=null&&document.querySelector(`#handz .hc[data-id="${SEL}"]`);if(se)showTip(se);else{SEL=null;hideTip()}
  }
  // 우노 버튼 (하나로 통합: 외치기 + 잡기)
- const needUno=play&&!myP.dead&&!myP.uno&&g.hand.length<=2&&g.hand.length>0,canCatch=miss!=null,said=myP.uno&&g.hand.length<=2;
+ const needUno=play&&!myP.dead&&!myP.uno&&g.hand.length===1,canCatch=miss!=null,said=myP.uno&&g.hand.length===1;
  const ub=$('unobig'),ubHide=!play||myP.dead||!!PK||showChal||(S&&S.t==='slap');
  ub.className=(ubHide?'hide ':'')+(canCatch?'catch':needUno?'call':said?'said':'idle');
- ub.innerHTML=`<b>UNO!</b><small>${canCatch?esc(P[miss].name)+' 잡기':needUno?'지금 외치기':said?'외침 완료':(matchMedia('(hover:hover)').matches?'Enter':'')}</small>`;
+ ub.innerHTML=`<b>UNO!</b><small>${canCatch?esc(P[miss].name)+' 잡기':needUno?'지금 외치기':said?'외침 완료':(matchMedia('(hover:hover)').matches?'Space':'')}</small>`;
  tbl.classList.toggle('unohot',!!(canCatch||needUno));
  const pb=$('passb');pb.classList.toggle('hide',!(mine&&(g.drew!==null||g.dbl||g.chain)&&!(g.must&&!g.dbl&&!g.chain))||!!PK);pb.textContent=g.dbl||g.chain?'그만 내기':'턴 넘기기';
  // 결과
@@ -1829,11 +1901,11 @@ function renderGame(){
   if(R.order){
    const last=R.order[R.order.length-1];
    rows=`<tr class="hd"><td></td><td></td><td>순위</td><td class="n">남은 카드</td></tr>`+R.order.map((j,k)=>{const x=R.rows[j];return`<tr class="${k===0?'win':''} ${j===last?'lose':''}"><td class="rk">${k===R.order.length-1?'꼴찌':(k+1)+'등'}</td><td>${face(x)}</td><td>${esc(x.name)}</td><td class="n">${x.left?x.left+'장':'-'}</td></tr>`}).join('');
-   hero=`<div class="rhero"><div class="rav">${face(R.rows[R.order[0]])}</div><b>${esc(R.rows[R.order[0]].name)}</b><span>1등!</span><em>꼴찌: ${esc(R.rows[last].name)}</em></div>`;
+   hero=`<div class="rhero"><div class="rav">${face(R.rows[R.order[0]])}</div><b>${esc(R.rows[R.order[0]].name)}</b><span>${R.timeup?'턴 제한 종료 · 1등!':'1등!'}</span><em>꼴찌: ${esc(R.rows[last].name)}</em></div>`;
   }else{
    rows=`<tr class="hd"><td></td><td></td><td>이름 · 남은 카드</td><td class="n">누적 점수</td></tr>`+R.rows.map((x,i)=>({...x,i})).sort((a,b)=>b.score-a.score).map((x,k)=>`<tr class="${R.win.includes(x.i)?'win':''}"><td class="rk">${k+1}</td><td>${face(x)}</td><td>${teamDot(x.team)}${esc(x.name)}<br><small>${x.dead?'탈락':`남은 ${x.left}장 · ${x.lp}점`}</small></td><td class="n">${x.score}</td></tr>`).join('');
    const wn=R.teams?R.win.map(j=>esc(R.rows[j].name)).join(' & ')+' 팀':esc(R.rows[R.w].name);
-   hero=`<div class="rhero"><div class="rav">${face(R.rows[R.w])}</div><b>${wn}</b><span>${over?'최종 우승!':R.mercy?'최후의 생존!':'라운드 승리!'}</span><em>+${R.sum}점</em></div>`;
+   hero=`<div class="rhero"><div class="rav">${face(R.rows[R.w])}</div><b>${wn}</b><span>${R.timeup?'턴 제한 · 카드가 가장 적어요':over?'최종 우승!':R.mercy?'최후의 생존!':'라운드 승리!'}</span><em>+${R.sum}점</em></div>`;
   }
   const html=`<div class="pan dlg resd">${hero}<div class="bd"><table class="res">${rows}</table>
    <div class="row">${host?(over?`<button class="btn y" data-a="lobby">로비로</button>`:`<button class="btn sm" data-a="lobby">로비로</button><button class="btn y" data-a="next">다음 라운드</button>`):'<span style="color:var(--soft)">방장이 다음 판을 준비하는 중...</span>'}</div></div></div>`;
@@ -1862,7 +1934,7 @@ function closeMod(){const m=$('mod');m.classList.add('hide');m.innerHTML=''}
 function helpHTML(){
  const ex=k=>({c:KD[k].w?'w':['r','y','g','b'][KORD.indexOf(k)%4],k,v:k==='n'?11:null});
  const sec=PACKS.map(([pk,n,d])=>`<h4>${n} <small>${d}</small></h4><div class="ref">${KORD.filter(k=>KD[k].p===pk).map(k=>`<div>${cardHTML(ex(k))}<span><b>${KD[k].n}</b>${KD[k].d}</span></div>`).join('')}</div>`).join('');
- return`<div class="ph">카드 설명</div><div class="bd">${sec}
+ return`<div class="ph">카드 설명</div><div class="bd"><h4>처음이라면 이것만</h4><ul class="rules"><li><b>내는 법</b>: 맨 위 카드와 <u>색</u>이 같거나 <u>숫자·기호</u>가 같으면 낼 수 있어요. 와일드(검은 카드)는 언제든 내고 색을 정해요.</li><li><b>낼 게 없으면</b>: 더미를 눌러 한 장 뽑아요. 뽑은 카드가 맞으면 바로 낼 수 있어요.</li><li><b>우노</b>: 카드가 1장 남으면 UNO 버튼(스페이스바). 안 누르고 들키면 2장 벌칙.</li><li><b>+카드</b>: 다음 사람이 그만큼 뽑고 차례를 쉬어요. 누적 룰이 켜져 있으면 나도 +카드를 내서 넘길 수 있어요.</li><li><b>+4 거짓말 잡기</b>: 바닥이 빨강일 때 손에 빨강 카드가 있으면 +4를 내면 안 돼요. 그래도 몰래 내는 사람이 있으니, +4를 맞으면 "의심하기"로 확인! 빨강을 숨기고 있었으면 상대가 4장, 정말 없었으면 내가 6장.</li><li><b>카드 설명</b>: 게임 중 카드에 마우스를 올리거나 한 번 누르면 설명이 떠요.</li></ul>${sec}
  <h4>하우스 룰</h4><ul class="rules">${RULES.map(([k,n,d])=>`<li><b>${n}</b>: ${d}</li>`).join('')}<li><b>머시 탈락</b>: 손패가 정한 장수 이상이 되면 탈락. 마지막까지 남은 사람(팀)이 이겨요.</li></ul>
  <ul class="rules"><li>낼 게 없으면 한 장 뽑고, 그 카드가 맞으면 바로 낼 수 있어요.</li><li>2장 남았을 때 우노!를 미리 눌러 두세요. 1장인데 안 눌렀으면 누구든 잡기로 +2.</li><li>점수: 숫자는 숫자대로, 색 특수 카드 20, 와일드 50. 이긴 사람이 남들 손패 점수를 가져가요.</li></ul>
  <div class="row"><button class="btn sm" data-a="close">닫기</button></div></div>`;
@@ -1895,9 +1967,9 @@ function clickCard(id){
 function unoPress(){
  if(!V||!V.g||V.phase!=='play')return;const g=V.g,mp=V.players[V.me];if(mp.dead)return;
  let did=false;
- if(!mp.uno&&g.hand.length<=2&&g.hand.length>0){pop('UNO!','#ff4b55',mp.name);sfx('uno');send({a:'uno'});did=true}
+ if(!mp.uno&&g.hand.length===1){pop('UNO!','#ff4b55',mp.name);sfx('uno');send({a:'uno'});did=true}
  if(g.unoMiss!=null&&g.unoMiss!==V.me){send({a:'catch'});did=true}
- if(!did){if(mp.uno)toast('이미 외쳤어요');else toast('카드가 2장 이하일 때 외쳐요. 남이 안 외치면 잡을 때도 눌러요');sfx('click')}
+ if(!did){if(mp.uno)toast('이미 외쳤어요');else toast('카드가 딱 1장 남았을 때만 외칠 수 있어요. 남이 안 외치면 잡을 때도 눌러요');sfx('click')}
 }
 document.addEventListener('pointerdown',e=>{actx();bgmUpdate();const hc=e.target.closest('#handz .hc');if(!hc){if(SEL!=null&&!e.target.closest('#tip')){SEL=null;hideTip();if(V&&V.g)render()}return}if(!V||e.button>0)return;DRAG={el:hc,id:+hc.dataset.id,x:e.clientX,y:e.clientY,moved:false,ok:hc.classList.contains('ok'),touch:e.pointerType!=='mouse'};if(DRAG.ok){try{hc.setPointerCapture(e.pointerId)}catch(_){}}});
 document.addEventListener('pointermove',e=>{if(!DRAG||!DRAG.ok)return;const dx=e.clientX-DRAG.x,dy=e.clientY-DRAG.y;if(!DRAG.moved&&Math.hypot(dx,dy)>8){DRAG.moved=true;DRAG.el.classList.add('drag');hideTip()}if(DRAG.moved){DRAG.el.style.transform=`translate(${dx}px,${dy}px) rotate(${dx/18}deg) scale(1.1)`;DRAG.el.classList.toggle('arm',dy<-90)}});
@@ -1945,7 +2017,7 @@ document.addEventListener('click',e=>{
 });
 
 $('jcode').addEventListener('keydown',e=>{if(e.key==='Enter')joinRoom()});
-document.addEventListener('keydown',e=>{if(V&&V.g&&V.phase==='play'&&!e.target.closest('input,button,select')&&(e.key==='Enter'||e.key==='u'||e.key==='U'||e.key==='ㅕ')){e.preventDefault();unoPress();return}if(e.key==='Escape'){closeMod();if(PK&&!PK.vote&&!(V&&V.g&&V.g.sub)){PK=null;render()}}});
+document.addEventListener('keydown',e=>{if(V&&V.g&&V.phase==='play'&&!e.target.closest('input,textarea')&&((e.code==='Space'&&!(V.g.sub&&V.g.sub.t==='slap'))||e.key==='u'||e.key==='U'||e.key==='ㅕ')){if(e.repeat){e.preventDefault();return}e.preventDefault();unoPress();return}if(e.key==='Escape'){closeMod();if(PK&&!PK.vote&&!(V&&V.g&&V.g.sub)){PK=null;render()}}});
 window.addEventListener('hashchange',()=>{if(!V)renderHome()});
 if(!LOCAL&&typeof mqtt==='undefined')toast('연결 모듈을 불러오지 못했어요',5000);
 document.title=GAME;
