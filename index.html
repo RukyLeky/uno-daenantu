@@ -1038,7 +1038,7 @@ function render(){
 }
 function renderHome(){
  $('myav').innerHTML=avatar(me.av);
- if(!$('nick').value)$('nick').value=me.name||'';
+ 
  if(!$('nick').placeholder)$('nick').placeholder=rname();
  const h=location.hash.slice(1).toUpperCase();
  if(/^[A-Z0-9]{6}$/.test(h)&&!peer){$('jcode').value=h;$('invited').textContent=`초대받았어요! 닉네임 정하고 입장을 누르세요 (${h})`;$('invited').classList.remove('hide')}
