@@ -623,6 +623,46 @@ button.mgh .mgcur{float:right;font-size:12px;font-weight:800;color:#fff;backgrou
 #mefx.fin.dock{border-color:rgba(255,209,102,.5)}#mefx.dead.dock{border-color:rgba(255,75,85,.5)}
 @keyframes mefxpop{from{transform:translate(-50%,-50%) scale(.5);opacity:0}}
 body.meout #unobig{visibility:hidden}
+/* 팝업 창(시작 전 룰·결과·도움말·설정)을 로비 패널과 같은 모양으로 */
+.mod .pan.dlg{border:3px solid var(--gk);border-radius:24px;box-shadow:0 8px 0 rgba(20,4,45,.55),0 24px 50px rgba(0,0,0,.35)}
+.mod .pan.dlg>.ph{background:#f1ebfc;border-bottom:3px solid #e2d8f5;color:var(--gk);font-weight:900;font-size:18px}
+.mod .pan.dlg .summ{background:#f7f3ff;border:3px solid #e2d8f5;border-radius:18px}
+.mod .rhero{border-bottom:3px solid var(--gk)}
+.mod .rhero em{border:2px solid var(--gk)}
+/* 탈출/탈락 상자는 결과·팝업 창 아래로 */
+#mefx{z-index:29}#mefx.dock{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(9,12,28,.86)}
+body:has(.mod:not(.hide)) #mefx.big{display:none}
+
+/* ===== 게임 중 팝업은 게임 화면과 같은 어두운 유리 스타일 ===== */
+body.ingame .mod .pan.dlg{background:#131834;color:#e6eaff;border:1px solid rgba(255,255,255,.16);border-radius:22px;box-shadow:0 24px 60px rgba(0,0,0,.6)}
+body.ingame .mod .pan.dlg>.ph{background:rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.1);color:#fff}
+body.ingame .mod .mx{color:#aab3d6}
+body.ingame .mod .pan.dlg .summ{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12)}
+body.ingame .mod .summ p{color:#c3cbec}body.ingame .mod .summ em{color:#ffd166}
+body.ingame .mod h4{color:#fff;border-top-color:rgba(255,255,255,.1)}
+body.ingame .mod .msub,body.ingame .mod small,body.ingame .mod .sub{color:#9aa4c8}
+body.ingame .mod .srow{border-bottom-color:rgba(255,255,255,.08)}body.ingame .mod .srow b{color:#fff}
+body.ingame .mod .tg i{background:#39406a}
+body.ingame .mod .res td,body.ingame .mod table td{border-bottom-color:rgba(255,255,255,.08);color:#e6eaff}
+body.ingame .mod .res tr.hd td{color:#8f9bc4}body.ingame .mod .res td.rk{color:#8f9bc4}
+body.ingame .mod .res tr.win td{background:rgba(255,209,102,.1)}
+body.ingame .mod .res tr.last td,body.ingame .mod .res tr.lose td{background:rgba(255,75,85,.1)}
+body.ingame .mod .btn:not(.y):not(.r){background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.2);box-shadow:none}
+body.ingame .mod .btn.y,body.ingame .mod .btn.r{border:0;box-shadow:0 4px 0 rgba(0,0,0,.35)}
+body.ingame .mod ul.rules li,body.ingame .mod li{color:#d5dbf5}body.ingame .mod u{color:#ffd166}
+body.ingame .mod .bd b{color:inherit}
+body.ingame .mod .rhero{border-bottom:0}
+body.ingame .mod .rhero em{border:0}
+/* 팝업이 열리면 채팅 버튼은 숨김 (팝업 위에 겹치던 문제) */
+body:has(.mod:not(.hide)) #chatw:not(.lobby){display:none}
+/* ===== 로비 채팅은 로비 패널과 같은 밝은 스타일 ===== */
+#chatw.lobby #chatp{background:#f7f3ff;border:3px solid #e2d8f5;border-radius:16px;backdrop-filter:none}
+#chatw.lobby #chath{color:var(--gk);border-bottom:3px solid #e2d8f5}
+#chatw.lobby #chath select{background:#fff;color:var(--gk);border:2px solid #e2d8f5}
+#chatw.lobby #chatl{color:#3a4060}#chatw.lobby #chatl p b{color:#5b46c9}#chatw.lobby #chatl p.me b{color:#c77700}
+#chatw.lobby #chatl p.em{color:#8a86a8}#chatw.lobby #chatl p.w{color:#a03bbf}#chatw.lobby #chatl p.w b{color:#a03bbf}
+#chatw.lobby #chatf{border-top:3px solid #e2d8f5}
+#chatw.lobby #chatin{background:#fff;color:var(--gk);border:2px solid #e2d8f5}
 /* ===== 카드 면 v3: 글자 캡션 없이 아이콘으로 ===== */
 .cd{--w:84px;width:var(--w);height:calc(var(--w)*1.5);border-radius:calc(var(--w)*.13);position:relative;flex:none;user-select:none;font-weight:900;
  background:linear-gradient(165deg,#ffffff,#eceef4);box-shadow:inset 0 0 0 1px rgba(0,0,0,.06),0 1px 1px rgba(0,0,0,.2),0 calc(var(--w)*.04) calc(var(--w)*.12) rgba(0,0,0,.35)}
@@ -1518,7 +1558,7 @@ function joinRoom(){
   const to=setTimeout(()=>{if(!V)fail('방을 찾지 못했어요. 코드를 확인해 주세요.')},9000);
   hc.on('open',()=>hc.send({t:'hello',name:me.name,av:me.av,tok:me.tok,img:me.img||null}));
   hc.on('data',d=>{
-   if(d.t==='view'){clearTimeout(to);if(V&&d.v&&V.code===d.v.code&&d.v.ver&&V.ver&&d.v.ver<=V.ver)return;V=d.v;recvAt=Date.now();render()}
+   if(d.t==='view'){clearTimeout(to);if(!V){const t=$('toast');t&&t.classList.add('hide')}if(V&&d.v&&V.code===d.v.code&&d.v.ver&&V.ver&&d.v.ver<=V.ver)return;V=d.v;recvAt=Date.now();render()}
    else if(d.t==='pong'){const r=Date.now()-d.ct;if(r>=0&&r<10000)window._rtt=window._rtt?Math.round(window._rtt*.7+r*.3):r}
    else if(d.t==='img'){IMG[d.k]=d.d;render()}
    else if(d.t==='full'){leaving=true;fail('방이 꽉 찼어요 (16명)')}
@@ -2414,7 +2454,7 @@ function endRound(w,byMercy){
 }
 
 /* ================= 화면 ================= */
-function show(id){['home','lobby','game'].forEach(s=>$(s).classList.toggle('hide',s!==id));if(id!=='game'){const a=$('mefx');if(a){a.className='';a.dataset.k=''}document.body.classList.remove('meout')}}
+function show(id){['home','lobby','game'].forEach(s=>$(s).classList.toggle('hide',s!==id));document.body.classList.toggle('ingame',id==='game');if(id!=='game'){const a=$('mefx');if(a){a.className='';a.dataset.k=''}document.body.classList.remove('meout')}}
 
 /* ===== 채팅 ===== */
 let CHO=false,CHSEEN=0,CHTO='all',CHSIG='',CHLAST=-1,CHOPTS=[['all','전체']],CHLASTW=null;
@@ -2770,7 +2810,7 @@ function renderGame0(){
  const myOn=mine||pileMe;
  $('mebox').className='mebox'+(myOn?' on':'')+(PK&&PK.t==='target'&&PK.self&&!(PK.exclude||[]).includes(me)?' pick':'');
  $('mebox').innerHTML=`<div class="tok" ${myOn?'data-timer':''}><span>${face(myP)}</span></div><div class="si"><b>${teamDot(myP.team)}${esc(myP.name)}</b><span class="cnt">${myP.fin?`<b class="esc">${myP.rk}등 탈출!</b> 구경 중`:myP.dead?`<b class="out">${whyTxt(myP)}</b> 구경 중`:myP.sit&&!g.hand.length?`<b class="esc">다 털었어요!</b> 팀원이 마지막 1장을 낼 때까지 대기`:`<i class="cic"></i>${g.hand.length}장${V.set.rank?'':' · '+myP.score+'점'}`}</span></div>${myP.uno&&g.hand.length<=2?'<span class="unob me">UNO</span>':''}`;
- if(myOn&&lastTurn!==curKey){sfx('turn',.15);if(!PK)setTimeout(()=>{if(V&&V.g&&V.g.cur===V.me&&!V.players[V.me].dead)turnFlash()},newTop?900:0)}lastTurn=curKey;
+ if(myOn&&lastTurn!==curKey){sfx('turn',.15);if(!PK)setTimeout(()=>{if(V&&V.g&&V.phase==='play'&&V.g.cur===V.me&&!V.players[V.me].dead&&!V.players[V.me].fin)turnFlash()},newTop?900:0)}lastTurn=curKey;
  // 안내
  let hint='',tag='';
  if(play&&!PK){
