@@ -1264,7 +1264,7 @@ const RULES=[
  ['bluff','+4 도전 (공식 룰)','공식 규칙에서는 와일드 +4를 가운데 색 카드가 없을 때만 낼 수 있어요. 켜면 와일드 +4·+6·+10·역방향 +4·+8 등 와일드 +카드(와일드 +2 제외)를 맞은 사람이 "의심하기"로 확인해요. 그 색 카드를 숨기고 냈으면 낸 사람이 벌칙을 받고, 아니면 의심한 사람이 2장 더.'],
  ['catch','우노 잡기','1장 남았는데 UNO를 안 외친 사람이 있으면, 누구든 UNO 버튼(스페이스바)을 눌러 잡아서 2장을 먹일 수 있어요.'],
  ['launcher','발사기','카드를 뽑을 때 1장이 아니라 0~6장이 무작위로 튀어나와요. 운이 좋으면 0장! (우노 어택 장난감 규칙)'],
- ['blast','블래스터 뽑기','카드를 뽑아야 할 때 더미 대신 블래스터에 한 장씩 꽂아요. 언제 터질지 몰라요! 터지면 꽂힌 카드를 전부 가져가요. +1을 맞은 사람도 블래스터에 꽂아요. (UNO Blast 규칙)'],
+ ['blast','블래스터 뽑기','카드를 뽑아야 할 때 더미 대신 블래스터에 한 장씩 꽂아요. 언제 터질지 몰라요! 터지면 꽂힌 카드를 전부 가져가요. +1을 맞은 사람도 블래스터에 꽂아요. 발사기와 같이 켜면 발사기에서 나온 0~6장이 한 장씩 블래스터로 들어가요. (UNO Blast 규칙)'],
  ['multi','겹쳐내기','같은 숫자(또는 같은 기호) 카드를 여러 장 한꺼번에 낼 수 있어요. 하나 내고 나면 같은 카드를 이어서 더 내거나 "그만 내기"를 눌러요. +2 두 장이면 +4, 건너뛰기 두 장이면 두 명을 건너뛰어요.'],
  ['run','연속 내기','숫자 카드를 낸 다음, 같은 색의 바로 다음 숫자(예: 빨강 5 → 빨강 6 → 빨강 7)가 있으면 이어서 계속 낼 수 있어요.'],
  ['slap','5에 손 치기','누가 숫자 5를 내면 모두 3초 안에 "탁!" 버튼(스페이스)을 눌러야 해요. 안 누르거나 가장 늦게 누른 사람이 2장을 받아요.'],
@@ -1848,7 +1848,7 @@ function gDraw(i){
  if(G.pending){const n=penal(i,G.pending);clearPending();const g=draw(i,n);log(`${p.name}, +${g.length}장 받고 쉼`);endTurn(0);return}
  if((G.lvl||1)>1&&G.need===G.lvl&&G.drew===null&&!G.dbl){const n=G.lvl;G.lvl=1;G.need=0;draw(i,n);log(`${p.name}, 스피드 ${n} 실패 → ${n}장, 스피드 1로`);endTurn(0);return}
  if(G.drew!==null||G.dbl||G.chain)return;
- if(H.set.blast){blastIn(i);endTurn(0);return}
+ if(H.set.blast){if(H.set.launcher){const n=rnd(HITS);log(`${p.name}, 발사기 → ${n}장을 블래스터로!`);for(let q=0;q<n;q++){if(blastIn(i))break}}else blastIn(i);endTurn(0);return}
  let g=[];
  if(H.set.dtm){let k=0;for(;k<60;k++){const x=draw(i,1);if(!x.length)break;g.push(x[0]);if(canPlay(x[0],st(),H.set))break}log(`${p.name}, 낼 때까지 ${g.length}장 뽑음`)}
  else if(H.set.launcher)g=hit(i);
@@ -2849,7 +2849,7 @@ function scoresHTML(){const P=V.players,g=V.g;
   return`<div class="ph">현재 순위</div><div class="bd"><table class="res"><tr class="hd"><td></td><td></td><td>이름</td><td class="n">상태</td></tr>${[...fin,...rest].map((p,k)=>`<tr><td class="rk">${p.fin?p.rk+'등':'-'}</td><td>${face(p)}</td><td>${teamDot(p.team)}${esc(p.name)}</td><td class="n">${p.fin?'탈출':p.dead?'탈락':p.n+'장'}</td></tr>`).join('')}</table><p class="msub">꼴찌 정하기: 손패를 먼저 턴 순서대로 1등, 2등…이 되고, 마지막까지 남은 사람이 꼴찌예요.</p><div class="row"><button class="btn sm y" data-a="close">닫기</button></div></div>`}
  return`<div class="ph">점수표</div><div class="bd"><table class="res"><tr class="hd"><td></td><td></td><td>이름</td><td class="n">누적 점수</td></tr>${P.map((p,i)=>({...p,i})).sort((a,b)=>b.score-a.score).map((p,k)=>`<tr><td class="rk">${k+1}</td><td>${face(p)}</td><td>${teamDot(p.team)}${esc(p.name)}<br><small>${p.dead?'탈락':p.n+'장 들고 있음'}</small></td><td class="n">${p.score}</td></tr>`).join('')}</table><p class="msub">점수제: 한 판을 이기면 남들 손에 남은 카드를 점수로 가져가요(숫자는 숫자대로, 특수 20, 와일드 50). ${V.set.target?V.set.target+'점에 먼저 닿으면 최종 우승.':'단판이라 이번 판 승자가 우승.'}</p><div class="row"><button class="btn sm y" data-a="close">닫기</button></div></div>`}
 function custFlow(c){const g=V.g,ks=(g.wkinds||[]).filter(k=>okNow({...c,k},g,V.set));if(!ks.length)return;
- setPK({t:'color',list:1,msg:'어떤 와일드로 변신할까요?',sub:'지금 덱에 있는 와일드 중 지금 낼 수 있는 것',opts:ks.map(k=>[k,KD[k].n,'#1b1f2e','#6b7280']),cb:k=>{PK=null;window.CUSTAS=k;playFlow({...c,k,_as:k})}})}
+ setPK({t:'color',list:1,msg:'어떤 와일드로 변신할까요?',sub:'지금 덱에 있는 와일드 중 지금 낼 수 있는 것',opts:ks.map(k=>[k,KD[k].n,'#1b1f2e','#6b7280']),cb:k=>{PK=null;if(!KD[k]){const o=ks[+k];if(!o)return;k=o}window.CUSTAS=k;playFlow({...c,k,_as:k})}})}
 function playFlow(c){
  if(c.k==='wcust'&&!c._as){custFlow(c);return}
  const nd=needs(c,V.g.hand.length,V.set),nm=KD[c.k].n;
