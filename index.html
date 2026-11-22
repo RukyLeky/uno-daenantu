@@ -1093,7 +1093,7 @@ const ICON={
 const svg=(p,sw=2.8)=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
 /* 카드 종류: p=팩, w=와일드, dv=+카드 값, ic=아이콘, tx=글자, cap=작은 글씨, tg=대상 고르기, noc=색 안 고름 */
 const KD={
- n:{n:'숫자',p:'classic',d:'같은 색이나 같은 숫자 위에 내요. 0~9(6과 9는 밑줄). 하트 팩을 켜면 12~23도 나와요.'},
+ n:{n:'숫자',p:'classic',d:'같은 색이나 같은 숫자 위에 내요. 0~9(6과 9는 밑줄). 하우스 룰 "숫자 10·11 추가"를 켜면 0~11, 하트 팩을 켜면 그 위 숫자(~23)도 나와요.'},
  skip:{n:'건너뛰기',p:'classic',ic:'skip',d:'다음 사람 차례를 건너뜀.'},
  rev:{n:'방향 전환',p:'classic',ic:'rev',d:'진행 방향을 뒤집음. 2명이면 건너뛰기.'},
  d2:{n:'+2',p:'classic',tx:'+2',dv:2,d:'다음 사람 2장.'},
@@ -1101,7 +1101,7 @@ const KD={
  w4:{n:'와일드 +4',p:'classic',w:1,tx:'+4',dv:4,d:'색을 바꾸고 다음 사람이 4장 받고 쉼. 언제든 낼 수 있음.'},
  wshuf:{n:'와일드 셔플',p:'classic',w:1,ic:'wshuf',d:'모두의 손패를 모아 섞은 뒤 다음 사람부터 한 장씩 다시 나눔. 클래식 112장 판에 1장 들어 있어요.'},
  skip2:{n:'2칸 건너뛰기',p:'ultra',ic:'skip2',d:'다음 두 사람을 건너뜀.'},
- every1:{n:'모두 +1',p:'ultra',tx:'+1',si:'people',d:'나 빼고 전원 1장씩.'},
+ every1:{n:'+1 스프레더',p:'ultra',tx:'+1',si:'people',d:'나 빼고 모두 1장씩 받고, 내가 한 번 더. 블루 실드를 든 사람은 막아요.'},
  dbl:{n:'더블',p:'ultra',ic:'twocards',d:'내고 나서 한 장 더 낼 수 있음.'},
  shield:{n:'방패',p:'ultra',ic:'shield',d:'+카드가 쌓였을 때 색 상관없이 내서 전부 막음.'},
  reflect:{n:'반사',p:'ultra',ic:'reflect',d:'+카드가 쌓였을 때 색 상관없이 내서 던진 사람에게 그대로 되돌림. 평소엔 방향 전환.'},
@@ -1218,7 +1218,7 @@ const KD={
 };
 const PACKS=[
  ['classic','클래식','UNO 클래식 112장: 0~9, 건너뛰기, 방향 전환, +2, 와일드, +4 + 와일드 셔플 1장, 커스텀 와일드 3장'],
- ['ultra','난투극','이 게임 오리지널 카드'],
+ ['ultra','카오스','우노 대난투 오리지널 카드: 2칸 건너뛰기, +1 스프레더, 더블, 방패, 반사, 선물, 얼음, +0, -2, 와일드 복사, 와일드 공개'],
  ['mercy','노 머시','UNO Show ’Em No Mercy'],
  ['nmx','노 머시 확장','No Mercy 확장팩: 10, 역방향 +8, 파이널 어택, 서든 데스'],
  ['flip','플립','양면 플립 규칙! 카드 앞뒤가 달라지고, 플립 카드가 나오면 손패·더미가 전부 뒤집혀 어두운 면(+5, 모두 건너뛰기, 와일드 드로우 컬러)으로. 다른 팩 카드도 반은 밝은 면, 반은 어두운 면에 들어가요.'],
@@ -1239,7 +1239,7 @@ const PACKS=[
  ['flexp','플렉스','UNO Flex 두 색 카드 + 파워'],
  ['teamp','팀즈 카드','UNO Teams: 패스, 팀 플레이, 팀 +4'],
  ['housep','하우스 룰','와일드 게임 체인저'],
- ['heart','하트','숫자 12~23 (옛 UNO Heart)'],
+ ['heart','하트','숫자 10~23 (10·11 하우스 룰을 켜 두면 12~23)'],
  ['dance','댄스','와일드 댄스: 다 같이 스페이스 연타 대결'],
  ['mk','마리오카트','와일드 아이템 박스'],
  ['smario','슈퍼 마리오','와일드 스타'],
@@ -1272,6 +1272,7 @@ const RULES=[
  ['mega','메가 히트 쌓기','힛 카드(힛 1·힛 5·히트 2·역방향 힛 4)를 맞으면 나도 힛 카드를 얹어 넘길 수 있어요. 못 넘긴 사람이 쌓인 횟수만큼 발사기를 돌려요.'],
  ['dos','도스 합치기','숫자 카드 두 장의 합이 맨 위 숫자와 같으면 색 상관없이 두 장을 이어서 낼 수 있어요. (예: 맨 위 9 → 4 내고 5) 첫 장만 내고 그만두면 2장.'],
  ['team','2인 1팀','마주 앉은 두 사람이 한 팀(4명 이상 짝수). 한 명이 손패를 다 털면 팀원이 자기 손패 절반을 넘겨줘요(팀원이 1장뿐이면 잠깐 대기, 팀원이 카드를 뽑으면 절반 받고 복귀). 둘 다 털어야 팀이 빠져나가요.'],
+ ['n1011','숫자 10·11 추가','모든 색에 숫자 10과 11을 2장씩 더 넣어요. 숫자 카드가 0~11이 돼요.'],
  ['nofin','특수 카드로 끝내기 금지','마지막 한 장은 숫자 카드여야 해요. 특수·와일드 카드로 손패를 다 털면 무효 처리하고 2장 받아요.'],
  ['open','손패 공개','모두의 손패를 처음부터 끝까지 공개하고 해요. 수 싸움 연습용.']
 ];
@@ -1286,11 +1287,11 @@ const NUMS=[
  {k:'leave',l:'나간 사람',o:[['bot','봇이 대신','접속이 끊기면 봇이 대신 카드를 내요. 다시 들어오면 바로 이어서 해요.'],['draw','뽑고 넘김','접속이 끊기면 차례마다 한 장 뽑고 넘어가요. 손패가 계속 늘어요.'],['out','탈락','접속이 끊기면 바로 탈락. 꼴찌 정하기면 꼴찌 쪽으로 가요.']]}
 ];
 const PK0={ono99:false,classic:true,blastp:false,dosp:false,golfp:false,dance:false,ultra:false,mercy:false,nmx:false,flip:false,attack:false,atkx:false,allwild:false,party:false,gold:false,rev:false,stk:false,spdp:false,swap:false,billie:false,spinp:false,sdp:false,darep:false,emop:false,flexp:false,teamp:false,housep:false,heart:false,mk:false,smario:false,angry:false,hot:false,liar:false};
-const BASE={prod:null,cb:false,flip2:false,blast:false,hearts:false,express:false,ono:false,mega:false,dos:false,tlim:-1,join:'play',leave:'bot',rank:true,multi:false,run:false,slap:false,orig:false,target:500,hand:7,timer:0,mercy:0,stack:true,sz:false,jump:false,force:false,dtm:false,bluff:false,catch:true,launcher:false,team:false,allwild:false,packs:PK0};
+const BASE={n1011:false,prod:null,cb:false,flip2:false,blast:false,hearts:false,express:false,ono:false,mega:false,dos:false,tlim:-1,join:'play',leave:'bot',rank:true,multi:false,run:false,slap:false,orig:false,target:500,hand:7,timer:0,mercy:0,stack:true,sz:false,jump:false,force:false,dtm:false,bluff:false,catch:true,launcher:false,team:false,allwild:false,packs:PK0};
 const ALLP={ono99:true,classic:true,blastp:true,dosp:true,golfp:true,dance:true,ultra:true,mercy:true,nmx:true,flip:true,attack:true,atkx:true,allwild:true,party:true,gold:true,rev:true,stk:true,spdp:true,swap:true,billie:true,spinp:true,sdp:true,darep:true,emop:true,flexp:true,teamp:true,housep:true,heart:true,mk:true,smario:true,angry:true,hot:true,liar:true};
 const MODES=[
  {id:'original',n:'클래식',d:'진짜 우노 그대로. 클래식 112장(0~9 108장 + 와일드 셔플 1 + 커스텀 와일드 3), 기본 규칙만.',c:'#e5383b',i:'<rect x="5" y="3" width="14" height="18" rx="3"/><path d="M12 8v8M9 11l3-3"/>',s:{stack:false}},
- {id:'brawl',n:'대난투',d:'섞을 수 있는 건 전부! 모든 카드 팩 + 누적·7-0·끼어들기·강제 내기·우노 잡기·겹쳐내기·연속 내기·메가 히트·5에 손 치기. 30장 탈락.',c:'#ff5d6c',i:ICON.burst,s:{packs:ALLP,stack:true,jump:true,sz:true,force:true,catch:true,multi:true,run:true,mega:true,slap:true,bluff:false,mercy:30}},
+ {id:'brawl',n:'대난투',d:'섞을 수 있는 건 전부! 하트 팩 빼고 모든 카드 팩 + 하우스 룰 전부(숫자 10·11 포함, 끝내기 금지·손패 공개·팀전만 빼고). 꼴찌 정하기 · 턴 30초 · 25장 탈락 · 턴 제한 없음.',c:'#ff5d6c',i:ICON.burst,s:{...Object.fromEntries(RULES.map(r=>[r[0],!['nofin','open','team'].includes(r[0])])),packs:{...ALLP,heart:false},rank:true,timer:30,mercy:25,tlim:0}},
  {id:'flip',n:'플립',d:'양면 카드! 밝은 면(+1, 와일드 +2)으로 시작해서 플립 카드가 나오면 손패·더미가 전부 뒤집혀 어두운 면(+5, 모두 건너뛰기, 와일드 드로우 컬러)으로. 다시 플립하면 밝은 면.',c:'#ff9f45',i:'<path d="M4 7h11a4 4 0 0 1 0 8H8M8 11l-4 4 4 4"/>',s:{prod:'flip2',flip2:true,stack:false,packs:{...PK0}}},
  {id:'allwild',n:'올 와일드',d:'112장 전부 와일드. 색·숫자 상관없이 아무거나 내요. 첫 카드 효과는 무시.',c:'#b388ff',i:'<circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/>',s:{prod:'allwild',allwild:true,stack:false}},
  {id:'party',n:'파티 매니아',d:'공식 파티: 끼어들기(스피드 플레이), 포인트 테이큰, 파일 업, 드로운 투게더.',c:'#ff8fd8',i:ICON.point,s:{prod:'party',jump:true,stack:false}},
@@ -1325,7 +1326,7 @@ const MODES=[
  {id:'smm',n:'슈퍼 마리오',d:'슈퍼 스타로 +2·+4를 낸 사람에게 되돌려요.',c:'#f4a261',i:ICON.star,s:{prod:'smario',cb:true,stack:false}},
  {id:'angrym',n:'앵그리버드',d:'킹 피그: 고른 색이 나올 때까지 돌아가며 한 장씩 받기.',c:'#43aa8b',i:ICON.pig,s:{prod:'angry',cb:true,stack:false}},
  {id:'hotm',n:'핫 데스',d:'핫 데스(팬 게임): 홀리 디펜더·리탈리에이션·바이러스로 막거나 되돌리고, 퀴터·M.A.D.로 탈락시키고, 핫 데스 +8·스프레더로 몰아붙여요.',c:'#9d0208',i:ICON.skull,s:{packs:{...PK0,hot:true},stack:true}},
- {id:'ultram',n:'난투극',d:'난투극 팩(이 게임 오리지널): 2칸 건너뛰기, 모두 +1, 더블(한 장 더), 방패, 반사, 선물, 얼음, +0, 와일드 복사, 와일드 공개.',c:'#ff5d6c',i:ICON.burst,s:{packs:{...PK0,ultra:true}}},
+ {id:'ultram',n:'카오스',d:'카오스 팩(우노 대난투 오리지널): 2칸 건너뛰기, +1 스프레더, 더블(한 장 더), 방패, 반사, 선물, 얼음, +0, -2, 와일드 복사, 와일드 공개.',c:'#8338ec',i:'<path d="M12 12.5c0-1.2 1-2 2-2s2 1 2 2.2c0 2.3-2 4.3-4.6 4.3-3.2 0-5.4-2.6-5.4-5.6C6 7.6 9 5 12.6 5 16.8 5 20 8.3 20 12.4c0 4.7-3.8 8.6-8.6 8.6"/><path d="M4 6l1.5 1.5M3 12h1.6M20.5 4.5 19 6"/>',s:{packs:{...PK0,ultra:true}}},
  {id:'heart23',n:'하트 팩',d:'숫자 0~23, 13장으로 시작.',c:'#c9184a',i:ICON.star,s:{hand:13,packs:{...PK0,heart:true}}},
  {id:'dosm',n:'도스 합치기 (하우스 룰)',d:'우노에 도스의 합치기만 섞은 하우스 룰. 두 장의 합이 맨 위 숫자면 같이 내기.',c:'#118ab2',i:ICON.layers,s:{cb:true,dos:true,stack:false,packs:{...PK0,}}},
  {id:'nonpart',n:'논파티잔',d:'빨강·파랑 대신 보라·주황. 나머지는 클래식 그대로.',c:'#7646d8',i:ICON.people,s:{prod:'nonpart',cb:true,stack:false}},
@@ -1334,7 +1335,7 @@ const MODES=[
  {id:'golf',n:'우노 골프',d:'손패 대신 2×3 칸! 뽑거나 버림 카드를 가져와 칸과 바꾸고, 세로 두 장이 같은 색·숫자면 정리. 한 명이 다 뒤집히면 라운드 끝, 9라운드 최저점 우승.',c:'#2a9d4b',i:ICON.layers,s:{prod:'golf',hand:0,rank:false,catch:false,stack:false,tlim:0,mercy:0,target:0}},
  {id:'dos1',n:'DOS (원판)',d:'가운데 줄 카드에 같은 숫자 한 장, 또는 합이 같은 두 장을 내요. 색까지 맞으면 보너스! 2는 와일드 DOS, #은 아무 숫자. 200점.',c:'#0b7a9e',i:ICON.layers,s:{prod:'dos1',cb:true,stack:false,catch:false,hand:7,target:200}},
  {id:'dos2',n:'DOS (2판)',d:'버림 더미가 2개! 한 턴에 두 더미 다 낼 수 있고, 같은 색 두 장을 합쳐 숫자를 맞춰도 돼요. 2는 전부 와일드 DOS. 2장 남으면 "도스!"',c:'#118ab2',i:ICON.layers,s:{prod:'dos2',cb:true,stack:false,catch:false,hand:7,target:500}},
- {id:'custom',n:'커스텀',d:'팩과 규칙을 직접 골라요.',c:'#9e9e9e',i:'<path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/>',s:{packs:ALLP,stack:true,sz:true,jump:true,force:true,dtm:true,bluff:true,catch:true,multi:true,run:true,launcher:false,team:false,slap:false,mercy:25,timer:30}}
+ {id:'custom',n:'커스텀',d:'팩과 규칙을 직접 골라요.',c:'#9e9e9e',i:'<path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/>',s:{stack:false}}
 ];
 const INDEP=s=>!!s&&(!!s.hearts||!!s.ono||['dos1','dos2','golf'].includes(s.prod));
 const MKIND=s=>INDEP(s)?['ind','독립 게임']:s&&s.prod?['fix','공식 덱 고정']:['mix','팩 조합'];
@@ -1684,7 +1685,7 @@ function addPacks(add,d,P){
   if(P.darep)add(c,'dare',null,2);
   if(P.flexp){const o=[...'rygb'].filter(x=>x!==c);for(let q=0;q<4;q++)d.push({c,k:'fx',v:1+((q*2+'rygb'.indexOf(c)*3)%9),c2:o[q%3]})}
   if(P.teamp)add(c,'tpass',null,2);
-  if(P.heart)for(let v=12;v<=23;v++)add(c,'n',v);
+  if(P.heart)for(let v=P.__n1011?12:10;v<=23;v++)add(c,'n',v);
   if(P.hot){add(c,'h69');add(c,'spread');if(hotMix){add(c,'holy');add(c,'retal');add(c,'share')}}
   if(P.dosp)add(c,'wnum');
   if(P.ono99){add(c,'m10');add(c,'p2')}
@@ -1719,7 +1720,10 @@ function addPacks(add,d,P){
  if(P.dosp){add('w','wdos',2,4);add('w','wp2',null,2)}
  if(P.golfp)add('w','dd2',null,4);
 }
-function deckOnce(s){
+function deckOnce(s){const d=deckOnceN(s);
+ if(s&&s.n1011&&!INDEP(s)){const two=d.some(c=>c.alt),DK={r:'p',y:'t',g:'o',b:'v'};const cs=[...new Set(d.filter(c=>'rygbptov'.includes(c.c)).map(c=>c.c))].filter(c=>'rygb'.includes(c)||(!two&&'ptov'.includes(c)));for(const c of (cs.length?cs:['r','y','g','b']))for(const v of [10,11])for(let t=0;t<2;t++)d.push(two?{c,k:'n',v,alt:{c:DK[c]||c,k:'n',v}}:{c,k:'n',v})}
+ return d}
+function deckOnceN(s){
  if(!s||!s.packs||!s.packs.flip||s.flip2||INDEP(s)||(s.prod&&/flip|fattack/.test(s.prod)))return deckOnce0(s);
  const rest=deckOnce0({...s,packs:{...s.packs,flip:false}}),base=PRODD.flip2(()=>{},[],s);
  const DK={r:'p',y:'t',g:'o',b:'v'},num=cs=>({c:rnd(cs),k:'n',v:1+Math.floor(Math.random()*9)});let t=0;
@@ -1742,7 +1746,7 @@ function deckOnce0(s){
  const cls=P.classic!==false;
  if(cls){CLS(add);add('w','wshuf');add('w','wcust',null,3)}
  else if(P.allwild)PRODD.allwild(add);
- addPacks(add,d,P);
+ if(s.n1011)P.__n1011=1;addPacks(add,d,P);delete P.__n1011;
  if(!d.length){CLS(add);add('w','wshuf');add('w','wcust',null,3)}
  return cls?balanceDeck(d,s):d;
 }
@@ -2181,7 +2185,7 @@ function effect(i,c,d,guilty){
    else if(G.pending){log(`반사할 상대가 없어 막기만 함`);clearPending()}
    else if(alive===2)r.skip=1;else G.dir*=-1;
    break;
-  case 'every1':P.forEach((q,j)=>{if(j!==i&&!q.dead)draw(j,1)});log('나머지 모두 1장씩');break;
+  case 'every1':P.forEach((q,j)=>{if(j!==i&&!q.dead){if(q.hand.some(x=>x.k==='pj')){log(`${q.name} 블루 실드! ${p.name}이(가) 대신 1장`);draw(i,1)}else draw(j,1)}});log('+1 스프레더! 나머지 모두 1장');r.again=true;break;
   case 'all':{const sm=p.hand.filter(x=>x.c===c.c);if(sm.length){p.hand=p.hand.filter(x=>x.c!==c.c);G.discard.splice(G.discard.length-1,0,...sm);log(`${CN[c.c]} ${sm.length}장 더 버림`)}break}
   case 'dbl':if(!out)r.dbl=true;break;
   case 'tpass':case 'gift':if(!out&&p.hand.length>=2&&d.gift!=null){const g=p.hand.find(x=>x.id===d.gift);if(g){p.hand=p.hand.filter(x=>x.id!==g.id);P[d.target].hand.push(g);P[d.target].uno=false;log(`${p.name} → ${P[d.target].name}에게 카드 한 장 선물`)}}break;
@@ -2509,7 +2513,7 @@ function balanceDeck(d,s){
  // 숫자 카드는 최소 54%: 모자라면 숫자를 고르게 더 넣음
  N=d.filter(isN);let need=Math.ceil(.54*d.length/.46*.46/(1-.54)*1)-0;
  const nH=d.filter(isH).length,target=()=>Math.ceil((d.length-N.length-nH)*.54/.46);
- let q=0;const top=9;while(N.length<target()&&q<400){const c='rygb'[q%4],v=1+((q*7)%top);const x={c,k:'n',v};d.push(x);N.push(x);q++}
+ let q=0;const top=s&&s.n1011?11:9;while(N.length<target()&&q<400){const c='rygb'[q%4],v=1+((q*7)%top);const x={c,k:'n',v};d.push(x);N.push(x);q++}
  return d}
 function deckOnceC(s){const keep=H;try{return deckOnce(s)}finally{}}
 /* ===== 소리 ===== */
