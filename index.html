@@ -586,6 +586,12 @@ input.tx:focus{border-color:var(--blue);outline:none;box-shadow:0 0 0 4px rgba(7
 #chattoast.on{opacity:1;transform:none}#chattoast b{color:#9fb5ff;margin-right:4px}
 #chatw.lobby{position:static;margin-top:12px;z-index:auto}#chatw.lobby #chatp{width:100%;height:260px;box-shadow:none;backdrop-filter:none}#chatw.lobby #chatl{min-height:0}#chatw.lobby #chatx{display:none}
 #chatl b.cwn{cursor:pointer}#chatl b.cwn:hover{text-decoration:underline}
+.modes{max-height:min(560px,62vh);overflow-y:auto;overscroll-behavior:contain;align-content:start}
+button.mgh{display:block;width:100%;text-align:left;background:#f4efff;border:2px solid #e4dbff;border-radius:12px;padding:9px 12px;cursor:pointer;font-family:inherit;margin:4px 0 0}
+button.mgh:hover{background:#ece3ff}button.mgh.op{background:#ebe2ff;border-color:#cdbcff}
+button.mgh .car{display:inline-block;font-style:normal;margin-right:6px;transition:transform .15s;color:#7b5cc7}button.mgh.op .car{transform:rotate(90deg)}
+button.mgh .mgc{display:inline-block;background:#7b5cc7;color:#fff;border-radius:999px;font-size:11px;padding:1px 7px;margin-left:4px;vertical-align:2px}
+button.mgh .mgcur{float:right;font-size:12px;font-weight:800;color:#fff;background:#ff8a3d;border-radius:999px;padding:2px 9px}
 /* ===== 카드 면 v3: 글자 캡션 없이 아이콘으로 ===== */
 .cd{--w:84px;width:var(--w);height:calc(var(--w)*1.5);border-radius:calc(var(--w)*.13);position:relative;flex:none;user-select:none;font-weight:900;
  background:linear-gradient(165deg,#ffffff,#eceef4);box-shadow:inset 0 0 0 1px rgba(0,0,0,.06),0 1px 1px rgba(0,0,0,.2),0 calc(var(--w)*.04) calc(var(--w)*.12) rgba(0,0,0,.35)}
@@ -2417,7 +2423,8 @@ function renderLobby(){
  $('plist').innerHTML=P.map((p,i)=>`<li class="pl">${face(p)}<span class="nm">${esc(p.name)}</span>${p.bot?'<span class="tag bot">BOT</span>':''}${i===0?CROWN:''}${i===V.me?'<span class="tag me">나</span>':''}${host&&i>0?`<button class="kick" data-a="kick" data-v="${i}" aria-label="내보내기">×</button>`:''}</li>`).join('')
   +Array.from({length:slots-P.length},(x,k)=>k===0&&host&&P.length<16&&V.phase==='lobby'?'<li class="pl empty"><button class="addbot" data-a="addbot">+ 봇 추가</button></li>':'<li class="pl empty">빈자리</li>').join('');
  $('mhead').innerHTML=host?'모드 고르기 <small>방장만 바꿀 수 있어요</small>':'모드 <small>방장이 고르는 중</small>';
- $('modes').innerHTML=MODE_G.map(([gn,ids])=>`<h5 class="mgh">${gn}<small>${MODE_GD[gn]||''}</small></h5>`+ids.map(id=>MODES.find(m=>m.id===id)).filter(Boolean).map(m=>{const mk=MKIND(m.s||{});return`<button class="mode ${V.mode===m.id?'on':''}" data-a="mode" data-v="${m.id}" ${dis}><span class="ic" style="background:${m.c}">${svg(m.i,2.4)}</span><b>${m.n}<em class="mk ${mk[0]}">${mk[1]}</em></b><span>${m.d}</span></button>`}).join('')).join('');
+ if(window._mgm!==V.mode){window._mgm=V.mode;const gi=MODE_G.findIndex(([gn,ids])=>ids.includes(V.mode));if(gi>=0)MGO[gi]=1}
+ $('modes').innerHTML=MODE_G.map(([gn,ids],gi)=>{const ms=ids.map(id=>MODES.find(m=>m.id===id)).filter(Boolean),cur=ms.find(m=>m.id===V.mode),op=!!MGO[gi];return `<button type="button" class="mgh ${op?'op':''}" data-mg="${gi}"><i class="car">▸</i>${gn} <span class="mgc">${ms.length}</span>${!op&&cur?`<span class="mgcur">선택: ${cur.n}</span>`:''}<small>${MODE_GD[gn]||''}</small></button>`+(op?ms.map(m=>{const mk=MKIND(m.s||{});return`<button class="mode ${V.mode===m.id?'on':''}" data-a="mode" data-v="${m.id}" ${dis}><span class="ic" style="background:${m.c}">${svg(m.i,2.4)}</span><b>${m.n}<em class="mk ${mk[0]}">${mk[1]}</em></b><span>${m.d}</span></button>`}).join(''):'')}).join('');
  const own=s.prod&&!INDEP(s)?(PRODPACK[s.prod]||[]).concat(PRODCLS.includes(s.prod)?['classic']:[]):[];const packs=PACKS.map(([k,n,d])=>{const on=INDEP(s)?false:s.prod?(own.includes(k)||(k!=='classic'&&s.packs[k])):s.packs[k];return`<button class="chipb ${on?'on':''} ${own.includes(k)?'own':''}" data-a="pack" data-k="${k}" title="${esc(d)}" ${dis}>${n}</button>`}).join('');
  const rules=RULES.map(([k,n,d])=>`<button class="rrow ${s[k]?'on':''}" data-a="rule" data-k="${k}" ${dis}><span class="sw2"><i></i></span><span class="rt"><b>${n}</b><small>${esc(d)}</small></span></button>`).join('');
  const nums=NUMS.map(x=>{const cur=x.o.find(o=>o[0]===s[x.k]),nd=(cur&&cur[2])||x.d||'';return`<div class="set"><span>${x.l}</span><div class="pills">${x.o.map(([v,l])=>`<button class="pill ${s[x.k]===v?'on':''}" data-a="num" data-k="${x.k}" data-v='${JSON.stringify(v)}' ${dis}>${l}</button>`).join('')}</div>${nd?`<p class="nd">${nd}</p>`:''}</div>`}).join('');
@@ -2892,6 +2899,7 @@ document.addEventListener('keydown',e=>{if(e.code==='Space'&&!e.repeat&&V&&V.g&&
 async function copy(t,ok){try{await navigator.clipboard.writeText(t);toast(ok)}catch(e){toast('복사가 막혔어요: '+t,4000)}}
 
 /* ================= 이벤트 ================= */
+let MGO={};document.addEventListener('click',e=>{const mg=e.target.closest('[data-mg]');if(mg){const k=+mg.dataset.mg;MGO[k]=MGO[k]?0:1;if(typeof sfx==='function')sfx('click');render()}});
 document.addEventListener('click',e=>{
  const st=e.target.closest('.st.pick,.mebox.pick');
  if(st&&PK&&PK.t==='target'){sfx('pick');const j=st.dataset.seat!=null?+st.dataset.seat:V.me;const cb=PK.cb;PK=null;cb(j);render();return}
