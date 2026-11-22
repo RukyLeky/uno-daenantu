@@ -2425,7 +2425,7 @@ function render(){try{chatRender()}catch(e){}
  bgmUpdate();
  if(!V){show('home');renderHome();return}
  if(V.phase==='lobby'||V.phase==='intro'){show('lobby');$('res').classList.add('hide');renderLobby();renderIntro()}
- else{show('game');$('intro').classList.add('hide');renderGame()}
+ else{if($('game').classList.contains('hide')){const pp=$('pop');if(pp){pp.innerHTML='';pp.classList.remove('go')}document.querySelectorAll('#tbl .go').forEach(e=>e.classList.remove('go'))}show('game');$('intro').classList.add('hide');renderGame()}
 }
 function renderHome(){
  $('myav').innerHTML=me.img?`<img class="av pimg" src="${me.img}" alt="">`:avatar(me.av);$('imgrm').classList.toggle('hide',!me.img);
@@ -2670,6 +2670,7 @@ function renderGame0(){
  const mine=play&&!S&&g.cur===me&&!myP.dead,pileMe=S&&S.t==='pile'&&S.who===me;
  curKey=g.round+':'+g.turn+(S?'s'+S.t+S.who:'');
  if(PK&&PK.key!==curKey)PK=null;
+ if(window._lgid!==g.gid){const pp=$('pop');if(pp){pp.innerHTML='';pp.classList.remove('go')}document.querySelectorAll('#tbl .go').forEach(e=>e.classList.remove('go'));cdKey=null}
  if(lastRound!==g.round||window._lgid!==g.gid){pileHist=[];lastTop=null;prevN=null;lastLog=null;prevHand=null;lastRound=g.round;resShown=false;window._lgid=g.gid}
  tableGeom();const tbl=$('tbl');tbl.style.setProperty('--cur',COL[g.color]==='#151515'?'#b388ff':COL[g.color]);tbl.classList.toggle('mine',!!(mine||pileMe));
  $('rinfo').innerHTML=`<b>${V.set.rank?'우노 대난투':g.round+'라운드'}</b><span>${(MODES.find(m=>m.id===V.mode)||{n:'커스텀'}).n}${V.set.prod&&!INDEP(V.set)?(()=>{const own=PRODPACK[V.set.prod]||[],x=Object.keys(V.set.packs||{}).filter(k=>V.set.packs[k]&&k!=='classic'&&!own.includes(k)).length;return x?` + 팩 ${x}개`:''})():''} · ${V.set.prod==='golf'?`${g.round}/9라운드 · 낮은 점수 승`:V.set.rank?'꼴찌 정하기':V.set.target?`${V.set.target}점 먼저`:'단판'}${g.tmax?` · ${g.rt}/${g.tmax}턴`:''}${g.lvl>1?` · 스피드 ${g.lvl}`:''}${V.set.flip2||(V.set.packs&&V.set.packs.flip)?` · ${g.side==='D'?'어두운 면':'밝은 면'}`:''}${V.set.mercy?` · ${V.set.mercy}장 탈락`:''}${(g.gc||[]).length?` · <b class="gcx">⚙ ${g.gc.map(([n,on])=>n+(on?' 켜짐':' 꺼짐')).join(', ')}</b>`:''}</span>`;
@@ -2730,7 +2731,7 @@ function renderGame0(){
  // 내 자리
  const myOn=mine||pileMe;
  $('mebox').className='mebox'+(myOn?' on':'')+(PK&&PK.t==='target'&&PK.self&&!(PK.exclude||[]).includes(me)?' pick':'');
- $('mebox').innerHTML=`<div class="tok" ${myOn?'data-timer':''}><span>${face(myP)}</span></div><div class="si"><b>${teamDot(myP.team)}${esc(myP.name)}</b><span class="cnt">${myP.fin?`<b class="esc">${myP.rk}등 탈출!</b> 구경 중`:myP.dead?`<b class="out">${whyTxt(myP)}</b> 구경 중`:`<i class="cic"></i>${g.hand.length}장${V.set.rank?'':' · '+myP.score+'점'}`}</span></div>${myP.uno&&g.hand.length<=2?'<span class="unob me">UNO</span>':''}`;
+ $('mebox').innerHTML=`<div class="tok" ${myOn?'data-timer':''}><span>${face(myP)}</span></div><div class="si"><b>${teamDot(myP.team)}${esc(myP.name)}</b><span class="cnt">${myP.fin?`<b class="esc">${myP.rk}등 탈출!</b> 구경 중`:myP.dead?`<b class="out">${whyTxt(myP)}</b> 구경 중`:myP.sit&&!g.hand.length?`<b class="esc">다 털었어요!</b> 팀원이 마지막 1장을 낼 때까지 대기`:`<i class="cic"></i>${g.hand.length}장${V.set.rank?'':' · '+myP.score+'점'}`}</span></div>${myP.uno&&g.hand.length<=2?'<span class="unob me">UNO</span>':''}`;
  if(myOn&&lastTurn!==curKey){sfx('turn',.15);if(!PK)setTimeout(()=>{if(V&&V.g&&V.g.cur===V.me&&!V.players[V.me].dead)turnFlash()},newTop?900:0)}lastTurn=curKey;
  // 안내
  let hint='',tag='';
