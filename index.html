@@ -609,8 +609,20 @@ button.mgh .mgcur{float:right;font-size:12px;font-weight:800;color:#fff;backgrou
 }
 #rinfo .gcx{color:#ffb703;font-weight:900}
 #rinfo{cursor:pointer}#rinfo:hover{filter:brightness(1.15)}#rinfo>span::after{content:' · 규칙 ▸';opacity:.75}
-#mest{position:fixed;left:50%;top:66px;transform:translateX(-50%);z-index:12;display:none;align-items:center;gap:8px;padding:6px 16px 6px 10px;border-radius:999px;background:rgba(9,12,28,.86);border:1px solid rgba(255,255,255,.14);box-shadow:0 8px 20px rgba(0,0,0,.4);white-space:nowrap;pointer-events:none}
-#mest.on{display:flex}#mest i{width:12px;height:12px;border-radius:50%;background:var(--pc);box-shadow:0 0 10px var(--pc)}#mest b{font-size:14px;font-weight:900;color:#fff}#mest span{font-size:12px;font-weight:700;color:#ffd166}
+#mefx{position:fixed;z-index:40;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;pointer-events:none;
+ background:rgba(9,12,28,.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.16);box-shadow:0 18px 50px rgba(0,0,0,.5);color:#fff;
+ transition:left .6s cubic-bezier(.5,0,.2,1),top .6s cubic-bezier(.5,0,.2,1),width .6s cubic-bezier(.5,0,.2,1),height .6s cubic-bezier(.5,0,.2,1),border-radius .6s,padding .6s}
+#mefx.on{display:flex}
+#mefx.big{left:50%;top:50%;width:min(440px,86vw);height:210px;margin:0;border-radius:28px;transform:translate(-50%,-50%);animation:mefxpop .45s cubic-bezier(.2,1.5,.4,1)}
+#mefx.dock{transform:translate(-50%,-50%);border-radius:50%;padding:0}
+#mefx b{font-size:76px;font-weight:900;font-style:italic;letter-spacing:-.04em;line-height:1;transition:font-size .6s}
+#mefx.fin b{color:#ffd166;text-shadow:0 0 24px rgba(255,209,102,.55),0 4px 0 rgba(120,70,0,.6)}#mefx.dead b{color:#ff4b55;text-shadow:0 0 24px rgba(255,75,85,.55),0 4px 0 rgba(90,0,10,.6)}
+#mefx span{margin-top:12px;font-size:15px;font-weight:800;background:rgba(255,255,255,.08);padding:4px 14px;border-radius:999px}
+#mefx em{display:none;font-style:normal;font-size:11px;font-weight:800;opacity:.85;margin-top:4px;max-width:90%;line-height:1.2}
+#mefx.dock b{font-size:26px}#mefx.dock span{display:none}#mefx.dock em{display:block}
+#mefx.fin.dock{border-color:rgba(255,209,102,.5)}#mefx.dead.dock{border-color:rgba(255,75,85,.5)}
+@keyframes mefxpop{from{transform:translate(-50%,-50%) scale(.5);opacity:0}}
+body.meout #unobig{visibility:hidden}
 /* ===== 카드 면 v3: 글자 캡션 없이 아이콘으로 ===== */
 .cd{--w:84px;width:var(--w);height:calc(var(--w)*1.5);border-radius:calc(var(--w)*.13);position:relative;flex:none;user-select:none;font-weight:900;
  background:linear-gradient(165deg,#ffffff,#eceef4);box-shadow:inset 0 0 0 1px rgba(0,0,0,.06),0 1px 1px rgba(0,0,0,.2),0 calc(var(--w)*.04) calc(var(--w)*.12) rgba(0,0,0,.35)}
@@ -2402,7 +2414,7 @@ function endRound(w,byMercy){
 }
 
 /* ================= 화면 ================= */
-function show(id){['home','lobby','game'].forEach(s=>$(s).classList.toggle('hide',s!==id));if(id!=='game'){const a=$('mest');if(a)a.className=''}}
+function show(id){['home','lobby','game'].forEach(s=>$(s).classList.toggle('hide',s!==id));if(id!=='game'){const a=$('mefx');if(a){a.className='';a.dataset.k=''}document.body.classList.remove('meout')}}
 
 /* ===== 채팅 ===== */
 let CHO=false,CHSEEN=0,CHTO='all',CHSIG='',CHLAST=-1,CHOPTS=[['all','전체']],CHLASTW=null;
@@ -2676,13 +2688,19 @@ const popText=c=>{const k=KD[c.k];if(c.k==='n')return null;return k.tx&&!k.cap?k
 function setPK(o){PK={...o,key:curKey};render()}
 let WATCH=null,lastSpec=null;
 function turnFlash(){const t=$('turnflash');t.classList.remove('go');void t.offsetWidth;t.classList.add('go')}
+function meDock(o){const r=$('unobig')&&$('unobig').getBoundingClientRect(),w=innerWidth<700?100:122;const x=r&&r.width?r.left+r.width/2:innerWidth-22-w/2,y=r&&r.height?r.top+r.height/2:innerHeight-22-w/2;
+ const cx=Math.min(innerWidth-w/2-8,Math.max(w/2+8,x)),cy=Math.min(innerHeight-w/2-8,Math.max(w/2+8,y));o.style.left=cx+'px';o.style.top=cy+'px';o.style.width=w+'px';o.style.height=w+'px';o.classList.remove('big');o.classList.add('dock')}
+addEventListener('resize',()=>{const o=$('mefx');if(o&&o.classList.contains('dock'))meDock(o)});
 function meFx(){if(!V||!V.g)return;const me=V.players[V.me];if(!me)return;const gid=V.g.gid,play=['play','round','over'].includes(V.phase),st=window._meSt;
- let b=$('mest');if(!b){b=document.createElement('div');b.id='mest';document.body.appendChild(b)}
- const out=play&&(me.fin||(me.dead&&me.why!=='watch'));b.className=out?'on':'';b.innerHTML=out?(me.fin?`<i style="--pc:#ffd166"></i><b>${me.rk?me.rk+'등 ':''}탈출</b><span>구경 중</span>`:`<i style="--pc:#ff4b55"></i><b>탈락</b><span>${esc(whyTxt(me))} · 구경 중</span>`):'';
- if(!st||st.gid!==gid){window._meSt={gid,dead:!!me.dead,fin:!!me.fin};return}
- if(play&&((me.fin&&!st.fin)||(me.dead&&!st.dead&&me.why!=='watch'))){const fin=me.fin,txt=fin?'탈출!':'탈락!',col=fin?'#ffd166':'#ff4b55',sub=fin?`${me.rk?me.rk+'등 · ':''}손패를 다 털었어요`:whyTxt(me);
-  setTimeout(()=>{pop(txt,col,sub);sfx(fin?'win':'bad')},me.why==='mercy'?1700:350)}
- st.dead=!!me.dead;st.fin=!!me.fin}
+ const out=play&&(me.fin||(me.dead&&me.why!=='watch'));let o=$('mefx');if(!o){o=document.createElement('div');o.id='mefx';document.body.appendChild(o)}
+ document.body.classList.toggle('meout',!!out);
+ if(!out){o.className='';o.removeAttribute('style');if(st&&st.gid===gid){st.dead=!!me.dead;st.fin=!!me.fin}else window._meSt={gid,dead:!!me.dead,fin:!!me.fin};return}
+ const fin=!!me.fin,html=`<b>${fin?'탈출!':'탈락!'}</b><span>${fin?(me.rk?me.rk+'등 · ':'')+'손패를 다 털었어요':esc(whyTxt(me))}</span><em>${fin?(me.rk?me.rk+'등':'탈출'):esc(whyTxt(me,1))}</em>`;
+ const fresh=st&&st.gid===gid&&((fin&&!st.fin)||(!fin&&!st.dead));window._meSt={gid,dead:!!me.dead,fin};
+ if(o.dataset.k!==gid+(fin?'f':'d')){o.dataset.k=gid+(fin?'f':'d');o.innerHTML=html;o.className=fin?'fin':'dead';o.removeAttribute('style');
+  if(fresh){o.classList.add('big');void o.offsetWidth;o.classList.add('on');setTimeout(()=>{if(fin)sfx('win');else sfx('bad')},me.why==='mercy'?1100:200);clearTimeout(o._h);o._h=setTimeout(()=>meDock(o),me.why==='mercy'?3600:2400)}
+  else{o.classList.add('on');meDock(o)}}
+ else if(o.classList.contains('dock'))meDock(o)}
 function renderGame(){renderGame0();try{deathFx()}catch(e){}try{meFx()}catch(e){}}
 function renderGame0(){
  const g=V.g,P=V.players,n=P.length,S=g.sub,me=V.me,myP=P[me],play=V.phase==='play';
