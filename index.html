@@ -608,6 +608,7 @@ button.mgh .mgcur{float:right;font-size:12px;font-weight:800;color:#fff;backgrou
  #lobby .modes{max-height:none;overflow:visible}
 }
 #rinfo .gcx{color:#ffb703;font-weight:900}
+#rinfo{cursor:pointer}#rinfo:hover{filter:brightness(1.15)}#rinfo>span::after{content:' · 규칙 ▸';opacity:.75}
 /* ===== 카드 면 v3: 글자 캡션 없이 아이콘으로 ===== */
 .cd{--w:84px;width:var(--w);height:calc(var(--w)*1.5);border-radius:calc(var(--w)*.13);position:relative;flex:none;user-select:none;font-weight:900;
  background:linear-gradient(165deg,#ffffff,#eceef4);box-shadow:inset 0 0 0 1px rgba(0,0,0,.06),0 1px 1px rgba(0,0,0,.2),0 calc(var(--w)*.04) calc(var(--w)*.12) rgba(0,0,0,.35)}
@@ -2647,6 +2648,8 @@ function fly(from,to,html,delay=0,rot=0,cls=''){
  setTimeout(()=>d.remove(),560+delay);
 }
 function resWhy(x,R){if(R.hearts)return`이번 판 +${x.left}점`;if(x.dead&&x.whyd)return x.whyd;if(x.fin)return'카드 다 털어냄';if(x.dead&&x.why==='mercy')return`${V.set.mercy}장 넘어서 탈락`;if(x.dead&&x.why==='left')return'나가서 탈락';if(x.why==='mad')return'M.A.D. 동반 탈락';if(x.why==='ono')return'99를 못 버팀';if(x.why==='quit')return'퀴터에 맞아 탈락';if(x.dead)return'탈락';return R.timeup?`턴 제한 · ${x.left}장 남음`:`끝까지 ${x.left}장 남음`}
+function rulesNowHTML(){const s=V.set,pk=PACKS.filter(x=>s.packs&&s.packs[x[0]]);const md=(MODES.find(m=>m.id===V.mode)||{n:'커스텀'}).n;
+ return `<div class="ph">이번 판 규칙 · ${esc(md)}</div><div class="bd"><div class="summ">${rulesSummary(s,V.mode,V.players.length).map(x=>`<p><em>${x[0]}</em>${esc(x[1])}</p>`).join('')}</div>${INDEP(s)?'':`<h4 style="margin:14px 0 6px">카드 팩</h4><p>${pk.map(x=>esc(x[1])).join(' · ')||'클래식'}</p>`}<div class="row"><button class="btn sm" data-a="close">닫기</button></div></div>`}
 function whyTxt(p,short){const w=p.why;if(!short&&p.whyd)return p.whyd;if(w==='mercy')return short?`${V.set.mercy}장 초과`:`${V.set.mercy}장 넘어서 탈락`;if(w==='left')return short?'나감':'나가서 탈락';if(w==='mad')return short?'M.A.D.':'M.A.D. 동반 탈락';if(w==='ono')return short?'99 초과':'99를 못 버텨 탈락';if(w==='quit')return short?'퀴터':'퀴터에 맞아 탈락';if(w==='watch')return'구경 중';return'탈락'}
 let prevDead={};
 let dGid=null;function deathFx(){if(!V||!V.g||!['play','round','over'].includes(V.phase)){prevDead={};dGid=null;return}
@@ -2678,7 +2681,7 @@ function renderGame0(){
  if(window._lgid!==g.gid){const pp=$('pop');if(pp){pp.innerHTML='';pp.classList.remove('go')}document.querySelectorAll('#tbl .go').forEach(e=>e.classList.remove('go'));cdKey=null}
  if(lastRound!==g.round||window._lgid!==g.gid){pileHist=[];lastTop=null;prevN=null;lastLog=null;prevHand=null;lastRound=g.round;resShown=false;window._lgid=g.gid}
  tableGeom();const tbl=$('tbl');tbl.style.setProperty('--cur',COL[g.color]==='#151515'?'#b388ff':COL[g.color]);tbl.classList.toggle('mine',!!(mine||pileMe));
- $('rinfo').innerHTML=`<b>${V.set.rank?'우노 대난투':g.round+'라운드'}</b><span>${(MODES.find(m=>m.id===V.mode)||{n:'커스텀'}).n}${V.set.prod&&!INDEP(V.set)?(()=>{const own=PRODPACK[V.set.prod]||[],x=Object.keys(V.set.packs||{}).filter(k=>V.set.packs[k]&&k!=='classic'&&!own.includes(k)).length;return x?` + 팩 ${x}개`:''})():''} · ${V.set.prod==='golf'?`${g.round}/9라운드 · 낮은 점수 승`:V.set.rank?'꼴찌 정하기':V.set.target?`${V.set.target}점 먼저`:'단판'}${g.tmax?` · ${g.rt}/${g.tmax}턴`:''}${g.lvl>1?` · 스피드 ${g.lvl}`:''}${V.set.flip2||(V.set.packs&&V.set.packs.flip)?` · ${g.side==='D'?'어두운 면':'밝은 면'}`:''}${V.set.mercy?` · ${V.set.mercy}장 탈락`:''}${(g.gc||[]).length?` · <b class="gcx">⚙ ${g.gc.map(([n,on])=>n+(on?' 켜짐':' 꺼짐')).join(', ')}</b>`:''}</span>`;
+ $('rinfo').dataset.a='rulesm';$('rinfo').title='눌러서 이번 판 규칙 보기';$('rinfo').innerHTML=`<b>${V.set.rank?'우노 대난투':g.round+'라운드'}</b><span>${(MODES.find(m=>m.id===V.mode)||{n:'커스텀'}).n}${V.set.prod&&!INDEP(V.set)?(()=>{const own=PRODPACK[V.set.prod]||[],x=Object.keys(V.set.packs||{}).filter(k=>V.set.packs[k]&&k!=='classic'&&!own.includes(k)).length;return x?` + 팩 ${x}개`:''})():''} · ${V.set.prod==='golf'?`${g.round}/9라운드 · 낮은 점수 승`:V.set.rank?'꼴찌 정하기':V.set.target?`${V.set.target}점 먼저`:'단판'}${g.tmax?` · ${g.rt}/${g.tmax}턴`:''}${g.lvl>1?` · 스피드 ${g.lvl}`:''}${V.set.flip2||(V.set.packs&&V.set.packs.flip)?` · ${g.side==='D'?'어두운 면':'밝은 면'}`:''}${V.set.mercy?` · ${V.set.mercy}장 탈락`:''}${(g.gc||[]).length?` · <b class="gcx">⚙ ${g.gc.map(([n,on])=>n+(on?' 켜짐':' 꺼짐')).join(', ')}</b>`:''}</span>`;
  if(S&&S.t==='vote'&&!myP.dead&&!S.voted.includes(me)&&voteKey!==curKey&&!(PK&&PK.vote))PK={t:'target',vote:1,key:curKey,msg:'지목할 사람을 고르세요',sub:'받은 표 수만큼 카드를 뽑아요',exclude:[me],cb:v=>{voteKey=curKey;send({a:'vote',v})}};
  if(S&&S.t==='roul'&&S.who===me&&!PK)PK={t:'color',key:curKey,msg:'룰렛 색을 고르세요',sub:'그 색이 나올 때까지 뒤집어 전부 가져가요',lock:1,cb:col=>send({a:'roul',col})};
  const picking=PK&&(PK.t==='target'||PK.t==='card');
@@ -2700,7 +2703,7 @@ function renderGame0(){
  const newTop=lastTop!==null&&lastTop!==g.top.id;
  if(lastTop!==g.top.id){pileHist.push({c:g.top,r:(Math.random()*30-15)|0,x:(Math.random()*14-7)|0,y:(Math.random()*10-5)|0});if(pileHist.length>6)pileHist.shift()}
  $('pile').innerHTML=pileHist.map((h,k)=>`<div class="pc ${newTop&&k===pileHist.length-1&&!calm()?'land':''}" style="transform:translate(${h.x}px,${h.y}px) rotate(${h.r}deg)">${cardHTML(h.c)}</div>`).join('');
- $('pend').innerHTML=V.set.blast&&!g.pending&&!g.hpend?`<span class="sum">💣 블래스터 ${g.blaster||0}장 장전 · 뽑으면 여기에 꽂혀요</span>`:V.set.ono?`<span class="sum">합계 ${g.sum}</span>`:g.hpend?`<span>발사기 ×${g.hpend}</span>`:g.pending?`<span>+${g.pending}</span>`:'';
+ $('pend').innerHTML=g.blaster&&!g.pending?`<span class="sum">블래스터 ${g.blaster}장</span>`:V.set.ono?`<span class="sum">합계 ${g.sum}</span>`:g.hpend?`<span>발사기 ×${g.hpend}</span>`:g.pending?`<span>+${g.pending}</span>`:'';
  $('colr').innerHTML='';
  {let rz=$('rowz');if(g.row){if(!rz){rz=document.createElement('div');rz.id='rowz';$('center').appendChild(rz)}rz.innerHTML=g.row.map((c,r)=>`<div class="rc ${g.rUsed&&g.rUsed[r]?'used':''}">${cardHTML(c)}<small>${r+1}</small></div>`).join('')}else if(rz)rz.remove()}
  {let p2=$('pile2');if(g.top2){if(!p2){const w=document.createElement('div');w.className='pilew p2';w.innerHTML='<div id="pile2"></div>';$('pile').parentNode.after(w);p2=$('pile2')}p2.innerHTML=`<div class="pc">${cardHTML(g.top2)}</div><span class="dpl" style="--c:${COL[g.color2]}"><i></i>${CN[g.color2]}${g.dUsed&&g.dUsed[1]&&g.cur===me?' · 냄':''}</span>`;let d1=$('dpl1');if(!d1){d1=document.createElement('span');d1.id='dpl1';d1.className='dpl';$('pile').parentNode.appendChild(d1)}d1.style.setProperty('--c',COL[g.color]);d1.innerHTML=`<i></i>${CN[g.color]}${g.dUsed&&g.dUsed[0]&&g.cur===me?' · 냄':''}`}else{if(p2)p2.parentNode.remove();const d1=$('dpl1');if(d1)d1.remove()}}
@@ -2958,6 +2961,7 @@ document.addEventListener('click',e=>{
   case 'wcol':if(PK&&PK.t==='color'){sfx('pick');const cb=PK.cb;PK=null;cb(v);render()}break;
     case 'pkcancel':PK=null;render();break;
   case 'scores':if(V)modal(scoresHTML());break;
+  case 'rulesm':if(V)modal(rulesNowHTML());break;
  }
 });
 
