@@ -1460,7 +1460,7 @@ class MPeer extends Em{constructor(id){super();this.id=id||'p'+Math.random().toS
   if(m.k==='conn'){if(c)return;const n=new MConn(this,m.from,m.cid);this.c[m.cid]=n;this.emit('connection',n);this._pub(m.from,{k:'ok',cid:m.cid});setTimeout(()=>n._start(),0);return}
   if(!c)return;c.last=Date.now();
   if(m.k==='ok')c._start();
-  else if(m.k==='data'){if(m.s<=c.rs)return;c.rs=m.s;c.emit('data',m.d)}
+  else if(m.k==='data'){c.seen=c.seen||new Set();if(c.seen.has(m.s))return;c.seen.add(m.s);if(c.seen.size>400){const it=c.seen.values();for(let q=0;q<200;q++)c.seen.delete(it.next().value)}c.rs=Math.max(c.rs,m.s);c.emit('data',m.d)}
   else if(m.k==='close')c._drop()}
  connect(id){const cid=Math.random().toString(36).slice(2,12);const c=new MConn(this,id,cid);this.c[cid]=c;this._pub(id,{k:'conn',cid});return c}
  destroy(){this.dead=true;Object.values(this.c).forEach(c=>c.close());setTimeout(()=>{try{this.cl&&this.cl.end(true)}catch(e){}},300)}
@@ -1503,7 +1503,8 @@ function joinRoom(){
   const to=setTimeout(()=>{if(!V)fail('방을 찾지 못했어요. 코드를 확인해 주세요.')},9000);
   hc.on('open',()=>hc.send({t:'hello',name:me.name,av:me.av,tok:me.tok,img:me.img||null}));
   hc.on('data',d=>{
-   if(d.t==='view'){clearTimeout(to);V=d.v;recvAt=Date.now();render()}
+   if(d.t==='view'){clearTimeout(to);if(V&&d.v&&V.code===d.v.code&&d.v.ver&&V.ver&&d.v.ver<=V.ver)return;V=d.v;recvAt=Date.now();render()}
+   else if(d.t==='pong'){const r=Date.now()-d.ct;if(r>=0&&r<10000)window._rtt=window._rtt?Math.round(window._rtt*.7+r*.3):r}
    else if(d.t==='img'){IMG[d.k]=d.d;render()}
    else if(d.t==='full'){leaving=true;fail('방이 꽉 찼어요 (16명)')}
    else if(d.t==='busy'){leaving=true;fail('게임 중이라 지금은 못 들어가요. 이번 판이 끝나면 다시 들어와 주세요')}
@@ -1513,7 +1514,7 @@ function joinRoom(){
  });
  peer.on('error',e=>{if(!V)fail(errMsg(e));else toast(errMsg(e))});
 }
-function send(d){if(d&&d.a==='play'&&window.CUSTAS){d.as=window.CUSTAS;window.CUSTAS=null}if(H)act(0,d);else if(hc&&hc.open)hc.send({t:'act',...d})}
+function send(d){if(d&&d.a==='play'&&window.CUSTAS){d.as=window.CUSTAS;window.CUSTAS=null}if(H){const race=['uno','catch','slap','dans','mash','sd'].includes(d.a)||(d.a==='play'&&H.G&&H.G.cur!==0);if(race&&H.lag>15){setTimeout(()=>act(0,d),H.lag);return}act(0,d);return}else if(hc&&hc.open)hc.send({t:'act',...d})}
 function goHome(msg){
  leaving=true;try{peer&&peer.destroy()}catch(e){}peer=null;hc=null;H=null;V=null;leaving=false;
  closeMod();PK=null;$('res').classList.add('hide');
@@ -1521,7 +1522,7 @@ function goHome(msg){
  if(msg)toast(msg,3500);render();
 }
 window.addEventListener('pagehide',()=>{try{peer&&peer.destroy()}catch(e){}});
-setInterval(()=>{try{if(!H&&hc&&hc.open&&V)hc.send({t:'sync',ver:V.ver,tok:me.tok})}catch(e){}},2000);
+setInterval(()=>{try{if(!H&&hc&&hc.open&&V)hc.send({t:'sync',ver:V.ver,tok:me.tok,ct:Date.now(),rtt:window._rtt||0})}catch(e){}},2000);
 
 /* ================= 방장: 방 ================= */
 function hostMsg(c,d){
@@ -1546,7 +1547,7 @@ function hostMsg(c,d){
   hb();return;
  }
  if(d.t==='act'){const i=H.players.findIndex(p=>p.conn===c);if(i>0)act(i,d)}
- if(d.t==='sync'){let i=H.players.findIndex(p=>p.conn===c);if(i<0){const p=H.players.find((x,j)=>j>0&&x.tok&&x.tok===d.tok);if(p){p.conn=c;p.off=false;if(H.G)log(`${p.name} 다시 접속`);hb()}return}if(i>0&&d.ver!==H.ver){try{c.send({t:'view',v:viewFor(i)})}catch(e){}}}
+ if(d.t==='sync'){let i=H.players.findIndex(p=>p.conn===c);if(i<0){const p=H.players.find((x,j)=>j>0&&x.tok&&x.tok===d.tok);if(p){p.conn=c;p.off=false;if(H.G)log(`${p.name} 다시 접속`);hb()}return}try{c.send({t:'pong',ct:d.ct})}catch(e){}if(i>0){const p=H.players[i];p.rtt=+d.rtt||0;const ls=H.players.filter((q,j)=>j>0&&!q.bot&&!q.off&&q.conn&&q.rtt).map(q=>q.rtt).sort((a,b)=>a-b);H.lag=ls.length?Math.min(350,Math.round(ls[ls.length>>1]/2)):0;if((d.ver||0)<(H.ver||0)){try{c.send({t:'view',v:viewFor(i)})}catch(e){}}}}
 }
 function hostClose(c){
  if(!H)return;const i=H.players.findIndex(p=>p.conn===c);if(i<1)return;
@@ -2699,7 +2700,7 @@ function renderGame0(){
  const newTop=lastTop!==null&&lastTop!==g.top.id;
  if(lastTop!==g.top.id){pileHist.push({c:g.top,r:(Math.random()*30-15)|0,x:(Math.random()*14-7)|0,y:(Math.random()*10-5)|0});if(pileHist.length>6)pileHist.shift()}
  $('pile').innerHTML=pileHist.map((h,k)=>`<div class="pc ${newTop&&k===pileHist.length-1&&!calm()?'land':''}" style="transform:translate(${h.x}px,${h.y}px) rotate(${h.r}deg)">${cardHTML(h.c)}</div>`).join('');
- $('pend').innerHTML=g.blaster&&!g.pending?`<span class="sum">블래스터 ${g.blaster}장</span>`:V.set.ono?`<span class="sum">합계 ${g.sum}</span>`:g.hpend?`<span>발사기 ×${g.hpend}</span>`:g.pending?`<span>+${g.pending}</span>`:'';
+ $('pend').innerHTML=V.set.blast&&!g.pending&&!g.hpend?`<span class="sum">💣 블래스터 ${g.blaster||0}장 장전 · 뽑으면 여기에 꽂혀요</span>`:V.set.ono?`<span class="sum">합계 ${g.sum}</span>`:g.hpend?`<span>발사기 ×${g.hpend}</span>`:g.pending?`<span>+${g.pending}</span>`:'';
  $('colr').innerHTML='';
  {let rz=$('rowz');if(g.row){if(!rz){rz=document.createElement('div');rz.id='rowz';$('center').appendChild(rz)}rz.innerHTML=g.row.map((c,r)=>`<div class="rc ${g.rUsed&&g.rUsed[r]?'used':''}">${cardHTML(c)}<small>${r+1}</small></div>`).join('')}else if(rz)rz.remove()}
  {let p2=$('pile2');if(g.top2){if(!p2){const w=document.createElement('div');w.className='pilew p2';w.innerHTML='<div id="pile2"></div>';$('pile').parentNode.after(w);p2=$('pile2')}p2.innerHTML=`<div class="pc">${cardHTML(g.top2)}</div><span class="dpl" style="--c:${COL[g.color2]}"><i></i>${CN[g.color2]}${g.dUsed&&g.dUsed[1]&&g.cur===me?' · 냄':''}</span>`;let d1=$('dpl1');if(!d1){d1=document.createElement('span');d1.id='dpl1';d1.className='dpl';$('pile').parentNode.appendChild(d1)}d1.style.setProperty('--c',COL[g.color]);d1.innerHTML=`<i></i>${CN[g.color]}${g.dUsed&&g.dUsed[0]&&g.cur===me?' · 냄':''}`}else{if(p2)p2.parentNode.remove();const d1=$('dpl1');if(d1)d1.remove()}}
