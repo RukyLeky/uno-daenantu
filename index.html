@@ -607,6 +607,7 @@ button.mgh .mgcur{float:right;font-size:12px;font-weight:800;color:#fff;backgrou
  #lobby .lob>.pan:last-child>.ph{position:sticky;top:0;z-index:3}
  #lobby .modes{max-height:none;overflow:visible}
 }
+#rinfo .gcx{color:#ffb703;font-weight:900}
 /* ===== 카드 면 v3: 글자 캡션 없이 아이콘으로 ===== */
 .cd{--w:84px;width:var(--w);height:calc(var(--w)*1.5);border-radius:calc(var(--w)*.13);position:relative;flex:none;user-select:none;font-weight:900;
  background:linear-gradient(165deg,#ffffff,#eceef4);box-shadow:inset 0 0 0 1px rgba(0,0,0,.06),0 1px 1px rgba(0,0,0,.2),0 calc(var(--w)*.04) calc(var(--w)*.12) rgba(0,0,0,.35)}
@@ -1566,7 +1567,7 @@ function act(i,d){
   case 'go':if(host&&H.phase==='intro')startGame();break;
   case 'back':if(host&&H.phase==='intro'){H.phase='lobby';H.players=H.players.filter((p,j)=>j===0||!p.off)}break;
   case 'next':if(host&&H.phase==='round')newRound();break;
-  case 'lobby':if(host){H.phase='lobby';H.G=null;H.players=H.players.filter((p,j)=>j===0||!p.off);H.players.forEach(p=>{p.hand=[];p.uno=false;p.score=0;p.dead=false})}break;
+  case 'lobby':if(host){if(H.gcOrig){Object.assign(H.set,H.gcOrig);H.gcOrig=null}H.phase='lobby';H.G=null;H.players=H.players.filter((p,j)=>j===0||!p.off);H.players.forEach(p=>{p.hand=[];p.uno=false;p.score=0;p.dead=false})}break;
   case 'gdraw':case 'gtake':case 'gswap':case 'gtoss':golfAct(i,d);break;
   case 'play':gPlay(i,d);break;
   case 'draw':gDraw(i);break;
@@ -1596,7 +1597,7 @@ function act(i,d){
 function viewFor(i){
  const P=H.players,G=H.G;
  const pidI=H.players[i]?H.players[i].pid:null,v={chat:(H.chat||[]).filter(m=>m.to==='all'||(m.to==='team'&&H.G&&H.G.teams&&tm(i)===m.tm)||m.to===pidI||m.fp===pidI).slice(-60).map(m=>({id:m.id,fn:m.fn,me:m.fp===pidI,team:m.to==='team',w:m.to!=='all'&&m.to!=='team',tn:m.to!=='all'&&m.to!=='team'?((H.players.find(q=>q.pid===m.to)||{}).name||'?'):null,t:m.t})),code:H.code,me:i,phase:H.phase,mode:H.mode,set:H.set,ready:H.ready?Object.keys(H.ready).map(Number):[],players:P.map((p,j)=>({sit:!!p.sit,bot:!!p.bot,pid:p.pid,name:p.name,av:p.av,score:p.score,n:p.hand.length,off:p.off,uno:p.uno,dead:p.dead,why:p.why||null,whyd:p.whyd||null,fin:!!p.fin,rk:G&&G.ranks?G.ranks.indexOf(j)+1:0,team:G?tm(j):null,fz:!!(G&&G.frozen[j]),hand:G&&(G.reveal[j]||(G.glas&&G.glas[j])||H.set.open||P[i].dead)&&j!==i?p.hand.map(hideLiar):null}))};
- if(G){const S=G.sub;v.g={gid:G.gid,tricks:G.tricks||0,side:G.side||'L',lvl:G.lvl||1,need:G.cur===i?G.need||0:0,blaster:G.blaster?G.blaster.length:0,trick:G.trick?G.trick.map(t=>({...t,c:hideLiar(t.c)})):null,broken:!!G.broken,leadCol:G.leadCol||null,sum:G.sum||0,hpend:G.hpend||0,pow:G.pow?G.pow[i]!==false:true,coins:G.coins?G.coins[i]||0:0,pows:G.pow?P.map((q,j)=>G.pow[j]!==false):null,top:hideLiar(G.discard[G.discard.length-1]),top2:G.disc2?G.disc2[G.disc2.length-1]:null,row:G.row||null,wkinds:G.wkinds||[],grids:H.set.prod==='golf'?P.map(q=>q.grid?q.grid.map(x=>x.up?{c:x.c,up:1}:{up:0}):null):null,gd:G.cur===i?G.gd||null:null,gsrc:G.cur===i?G.gsrc||null:null,gheld:!!G.gd,rUsed:G.cur===i?G.rUsed||[]:[],color2:G.color2||null,dUsed:G.dUsed||null,dPlayed:G.cur===i?G.dPlayed||0:0,need2:G.need2===i,color:G.color,dir:G.dir,cur:G.cur,pending:G.pending,plast:G.plast,deckN:G.deck.length,log:G.log.slice(0,12),unoMiss:G.unoMiss,
+ if(G){const S=G.sub;v.g={gc:H.gcOrig?Object.keys(H.gcOrig).filter(k=>H.set[k]!==H.gcOrig[k]).map(k=>[(RULES.find(x=>x[0]===k)||[0,k])[1],!!H.set[k]]):[],gid:G.gid,tricks:G.tricks||0,side:G.side||'L',lvl:G.lvl||1,need:G.cur===i?G.need||0:0,blaster:G.blaster?G.blaster.length:0,trick:G.trick?G.trick.map(t=>({...t,c:hideLiar(t.c)})):null,broken:!!G.broken,leadCol:G.leadCol||null,sum:G.sum||0,hpend:G.hpend||0,pow:G.pow?G.pow[i]!==false:true,coins:G.coins?G.coins[i]||0:0,pows:G.pow?P.map((q,j)=>G.pow[j]!==false):null,top:hideLiar(G.discard[G.discard.length-1]),top2:G.disc2?G.disc2[G.disc2.length-1]:null,row:G.row||null,wkinds:G.wkinds||[],grids:H.set.prod==='golf'?P.map(q=>q.grid?q.grid.map(x=>x.up?{c:x.c,up:1}:{up:0}):null):null,gd:G.cur===i?G.gd||null:null,gsrc:G.cur===i?G.gsrc||null:null,gheld:!!G.gd,rUsed:G.cur===i?G.rUsed||[]:[],color2:G.color2||null,dUsed:G.dUsed||null,dPlayed:G.cur===i?G.dPlayed||0:0,need2:G.need2===i,color:G.color,dir:G.dir,cur:G.cur,pending:G.pending,plast:G.plast,deckN:G.deck.length,log:G.log.slice(0,12),unoMiss:G.unoMiss,
   drew:G.cur===i?G.drew:null,dbl:G.cur===i&&G.dbl,left:G.deadline?Math.max(0,G.deadline-Date.now()):0,total:G.total||0,round:G.round,turn:G.turn,lastBy:G.lastBy,chain:G.cur===i?G.chain||null:null,cd:G.cdUntil?Math.max(0,G.cdUntil-Date.now()):0,hand:P[i].hand,result:G.result,
   rt:Math.min(G.rt||0,G.tmax||0),tmax:G.tmax||0,chalc:G.w4prev,chal:!!(H.set.bluff&&G.w4chk&&G.pending&&G.cur===i&&G.plastBy===G.w4chk.by),must:G.cur===i&&mustPlay(),links:G.links,teams:G.teams,
   sub:S?{counts:S.counts||null,kind:S.kind||null,q:S.q||null,opts:S.opts||null,by:S.by,pen:S.pen||null,goIn:S.goAt?Math.max(0,S.goAt-Date.now()):null,only:S.only||null,lab:S.lab||null,n:S.n||null,txt:S.txt||null,emo:!!S.emo,t:S.t,who:S.who,col:S.col,pile:S.pile,hits:S.hits?Object.keys(S.hits).map(Number):null,voted:S.votes?Object.keys(S.votes).map(Number):null,left:Math.max(0,S.until-Date.now()),total:S.total}:null}}
@@ -1789,8 +1790,9 @@ function hdGlas(t,by){const G=H.G,P=P_();const r=hdDefend(t,by,'글라스노스�
 function bastardWin(i){const h=P_()[i].hand;return['quit','poo','retal','holy'].every(k=>h.some(x=>x.k===k))}
 function mateOf(i){const G=H.G;if(!G||!G.teams)return null;const t=tm(i);if(t==null)return null;for(let j=0;j<P_().length;j++)if(j!==i&&tm(j)===t)return j;return null}
 function blastIn(j){const G=H.G;G.blaster=G.blaster||[];if(!G.deck.length)refill();const c=G.deck.pop();if(!c)return true;G.blaster.push(c);if(Math.random()<G.blaster.length/6){const n=G.blaster.length,p=P_()[j];p.hand.push(...G.blaster);G.blaster=[];p.uno=false;log(`블래스터 폭발! ${p.name} ${n}장`);return true}log(`${P_()[j].name}, 블래스터에 꽂음 (${G.blaster.length}장 장전)`);return false}
-function doFlip(i){const G=H.G,P=P_();G.side=G.side==='D'?'L':'D';const sw=c=>{if(c&&c.alt){const a=c.alt;c.alt={c:c.c,k:c.k,v:c.v};c.c=a.c;c.k=a.k;c.v=a.v}};
- P.forEach(p=>p.hand.forEach(sw));G.deck.forEach(sw);G.discard.forEach(sw);G.deck.reverse();G.discard.reverse();
+function doFlip(i){const G=H.G,P=P_();G.side=G.side==='D'?'L':'D';const sw=c=>{if(c&&c.alt){const a=c.alt,cur={};for(const k of Object.keys(c))if(k!=='id'&&k!=='alt'){cur[k]=c[k];delete c[k]}Object.assign(c,a);delete c.alt;c.alt=cur}};
+ const seen=new Set(),walk=o=>{if(!o||typeof o!=='object'||seen.has(o))return;seen.add(o);if(Array.isArray(o)){o.forEach(walk);return}if(o.alt&&typeof o.alt==='object'&&'k' in o){sw(o);return}for(const k in o)if(k!=='log')walk(o[k])};
+ P.forEach(p=>walk(p.hand));walk(G);G.deck.reverse();G.discard.reverse();
  const top=G.discard[G.discard.length-1];G.color=top.c==='w'?botColor(P[i]):top.c;clearPending();
  log(`플립! ${G.side==='D'?'어두운 면':'밝은 면'}으로 전부 뒤집힘`)}
 function forceDraw(i,n){n=penal(i,n);const g=draw(i,n);log(`${P_()[i].name}, ${g.length}장 받음`)}
@@ -1806,6 +1808,7 @@ function startGame(){
  if(H.set.team&&!H.G.teams)log('인원이 홀수라 개인전으로 진행');
 }
 function newRound(){
+ if(H.gcOrig){Object.assign(H.set,H.gcOrig);H.gcOrig=null}
  const G=H.G,P=P_();
  G.round++;G.dir=1;G.unoMiss=null;G.result=null;G.log=[];G.sub=null;G.links=[];G.frozen={};G.reveal={};G.burn=0;clearPending();
  P.forEach((p,i)=>{p.sit=false;p.hand=[];p.uno=false;p.dead=!!(G.teams&&i>=G.tn*2)||!!(p.off&&H.set.leave==='out');p.why=p.dead?(p.off?'left':'watch'):null;p.fin=false});G.ranks=[];G.elim=[];G.teamRanks=[];G.chain=null;G.rt=0;G.glas={};G.star={};G.luck={};G.speedT=0;G.side='L';G.lvl=1;G.lvlNext=0;G.need=0;G.blaster=[];G.nm=null;G.hpend=0;G.sum=0;G.extra={};G.pow={};G.coins={};if(H.set.packs.mx)P.forEach((q,j)=>G.coins[j]=1);{const tl=H.set.tlim,al=P.filter((p,i)=>!(G.teams&&i>=G.tn*2)).length;G.tmax=tl===-1?Math.min(800,al*35):tl||0}
@@ -2232,7 +2235,7 @@ function effect(i,c,d,guilty){
   case 'emo':if(!out)r.sub={t:'dare',who:nxt,emo:1,txt:rnd(EMOS)};break;
   case 'wtplay':{const mate=G.teams?aliveIdx().find(j=>j!==i&&tm(j)===tm(i)):null;if(mate!=null){log(`팀 플레이! ${P[mate].name} 차례`);r.toCur=mate}else r.again=true;break}
   case 'wtd4':if(G.teams){aliveIdx().filter(j=>tm(j)!==tm(i)).forEach(j=>forceDraw(j,2))}else{forceDraw(nxt,4);r.skip=1}break;
-  case 'wgc':{const ks=['stack','sz','jump','force','dtm','multi','run','catch'],k2=rnd(ks);G.gcOrig=G.gcOrig||{};if(!(k2 in G.gcOrig))G.gcOrig[k2]=H.set[k2];H.set[k2]=!H.set[k2];log(`게임 체인저! ${(RULES.find(x=>x[0]===k2)||[0,k2])[1]} ${H.set[k2]?'켜짐':'꺼짐'}`);break}
+  case 'wgc':{const ks=['stack','sz','jump','force','dtm','multi','run','catch'],k2=rnd(ks);H.gcOrig=H.gcOrig||{};if(!(k2 in H.gcOrig))H.gcOrig[k2]=H.set[k2];H.set[k2]=!H.set[k2];log(`게임 체인저! ${(RULES.find(x=>x[0]===k2)||[0,k2])[1]} ${H.set[k2]?'켜짐':'꺼짐'}`);break}
   case 'wstar':G.star[i]=true;log(`${p.name} 스타! 다음 벌칙 한 번 무적`);break;
   case 'witem':{const it=rnd([0,1,2,3,4]);
    if(it===0){G.dir*=-1;const pv=nx(i,1);G.dir*=-1;log('아이템: 바나나!');forceDraw(pv,2)}
@@ -2667,7 +2670,7 @@ function renderGame0(){
  if(PK&&PK.key!==curKey)PK=null;
  if(lastRound!==g.round||window._lgid!==g.gid){pileHist=[];lastTop=null;prevN=null;lastLog=null;prevHand=null;lastRound=g.round;resShown=false;window._lgid=g.gid}
  tableGeom();const tbl=$('tbl');tbl.style.setProperty('--cur',COL[g.color]==='#151515'?'#b388ff':COL[g.color]);tbl.classList.toggle('mine',!!(mine||pileMe));
- $('rinfo').innerHTML=`<b>${V.set.rank?'우노 대난투':g.round+'라운드'}</b><span>${(MODES.find(m=>m.id===V.mode)||{n:'커스텀'}).n}${V.set.prod&&!INDEP(V.set)?(()=>{const own=PRODPACK[V.set.prod]||[],x=Object.keys(V.set.packs||{}).filter(k=>V.set.packs[k]&&k!=='classic'&&!own.includes(k)).length;return x?` + 팩 ${x}개`:''})():''} · ${V.set.prod==='golf'?`${g.round}/9라운드 · 낮은 점수 승`:V.set.rank?'꼴찌 정하기':V.set.target?`${V.set.target}점 먼저`:'단판'}${g.tmax?` · ${g.rt}/${g.tmax}턴`:''}${g.lvl>1?` · 스피드 ${g.lvl}`:''}${V.set.flip2||(V.set.packs&&V.set.packs.flip)?` · ${g.side==='D'?'어두운 면':'밝은 면'}`:''}${V.set.mercy?` · ${V.set.mercy}장 탈락`:''}</span>`;
+ $('rinfo').innerHTML=`<b>${V.set.rank?'우노 대난투':g.round+'라운드'}</b><span>${(MODES.find(m=>m.id===V.mode)||{n:'커스텀'}).n}${V.set.prod&&!INDEP(V.set)?(()=>{const own=PRODPACK[V.set.prod]||[],x=Object.keys(V.set.packs||{}).filter(k=>V.set.packs[k]&&k!=='classic'&&!own.includes(k)).length;return x?` + 팩 ${x}개`:''})():''} · ${V.set.prod==='golf'?`${g.round}/9라운드 · 낮은 점수 승`:V.set.rank?'꼴찌 정하기':V.set.target?`${V.set.target}점 먼저`:'단판'}${g.tmax?` · ${g.rt}/${g.tmax}턴`:''}${g.lvl>1?` · 스피드 ${g.lvl}`:''}${V.set.flip2||(V.set.packs&&V.set.packs.flip)?` · ${g.side==='D'?'어두운 면':'밝은 면'}`:''}${V.set.mercy?` · ${V.set.mercy}장 탈락`:''}${(g.gc||[]).length?` · <b class="gcx">⚙ ${g.gc.map(([n,on])=>n+(on?' 켜짐':' 꺼짐')).join(', ')}</b>`:''}</span>`;
  if(S&&S.t==='vote'&&!myP.dead&&!S.voted.includes(me)&&voteKey!==curKey&&!(PK&&PK.vote))PK={t:'target',vote:1,key:curKey,msg:'지목할 사람을 고르세요',sub:'받은 표 수만큼 카드를 뽑아요',exclude:[me],cb:v=>{voteKey=curKey;send({a:'vote',v})}};
  if(S&&S.t==='roul'&&S.who===me&&!PK)PK={t:'color',key:curKey,msg:'룰렛 색을 고르세요',sub:'그 색이 나올 때까지 뒤집어 전부 가져가요',lock:1,cb:col=>send({a:'roul',col})};
  const picking=PK&&(PK.t==='target'||PK.t==='card');
@@ -2718,7 +2721,7 @@ function renderGame0(){
   if(t)setTimeout(()=>{pop(t,COL[g.top.c==='w'?g.color:g.top.c]);if(sn)sfx(sn);if(KD[g.top.k].dv>=6)shake()},calm()?0:330);
  }
  if(lastLog!==null){let fresh=[];for(const l of g.log){if(l===lastLog)break;fresh.push(l)}if(lastLog&&!g.log.includes(lastLog))fresh=[];
-  fresh.reverse().forEach(l=>{if(l.includes('"우노!"')){pop('UNO!','#ff4b55',l.split(':')[0]);sfx('uno')}else if(l.includes('적발')){pop('잡았다!','#ff4b55','+2장');sfx('catch')}else if(l.includes('탈락!')&&!l.includes('장을 넘겼어요')){pop('탈락!','#9e9e9e',l.split(' ')[0]);sfx('bad')}else if(l.includes('거짓말 들킴')){pop('거짓말 들킴!','#2ed3b7',l.split(', ')[0].replace('거짓말 들킴! ','')+' +'+l.split('→ ')[1]);sfx('special')}else if(l.includes('정직했음')){pop('정직했어요!','#ff4b55','의심한 사람이 벌칙');sfx('bad')}else if(l.includes('끼어들기')){pop('끼어들기!','#2ed3b7');sfx('special')}else if(l.includes('얼음!')&&l.includes('쉼')){pop('얼음!','#7fd6ff');sfx('skip')}})}
+  fresh.reverse().forEach(l=>{if(l.startsWith('게임 체인저!')){pop('게임 체인저!','#ffb703',l.replace('게임 체인저! ',''));sfx('special')}else if(l.includes('"우노!"')){pop('UNO!','#ff4b55',l.split(':')[0]);sfx('uno')}else if(l.includes('적발')){pop('잡았다!','#ff4b55','+2장');sfx('catch')}else if(l.includes('탈락!')&&!l.includes('장을 넘겼어요')){pop('탈락!','#9e9e9e',l.split(' ')[0]);sfx('bad')}else if(l.includes('거짓말 들킴')){pop('거짓말 들킴!','#2ed3b7',l.split(', ')[0].replace('거짓말 들킴! ','')+' +'+l.split('→ ')[1]);sfx('special')}else if(l.includes('정직했음')){pop('정직했어요!','#ff4b55','의심한 사람이 벌칙');sfx('bad')}else if(l.includes('끼어들기')){pop('끼어들기!','#2ed3b7');sfx('special')}else if(l.includes('얼음!')&&l.includes('쉼')){pop('얼음!','#7fd6ff');sfx('skip')}})}
  lastLog=g.log[0]||'';
  if(prevN&&prevN.length===n){P.forEach((p,j)=>{if(j===me)return;const d=p.n-prevN[j];if(d>0&&d<40){const to=document.querySelector(`.st[data-seat="${j}"] .tok`);for(let x=0;x<Math.min(d,6);x++){fly($('deck'),to,cardHTML({back:1}),x*80,0,'sm');if(x<4)sfx('draw',x*.08)}if(to){to.classList.remove('bump');void to.offsetWidth;to.classList.add('bump')}}})}
  prevN=P.map(p=>p.n);lastTop=g.top.id;
