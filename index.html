@@ -1520,6 +1520,7 @@ function goHome(msg){
  if(msg)toast(msg,3500);render();
 }
 window.addEventListener('pagehide',()=>{try{peer&&peer.destroy()}catch(e){}});
+setInterval(()=>{try{if(!H&&hc&&hc.open&&V)hc.send({t:'sync',ver:V.ver,tok:me.tok})}catch(e){}},2000);
 
 /* ================= 방장: 방 ================= */
 function hostMsg(c,d){
@@ -1544,6 +1545,7 @@ function hostMsg(c,d){
   hb();return;
  }
  if(d.t==='act'){const i=H.players.findIndex(p=>p.conn===c);if(i>0)act(i,d)}
+ if(d.t==='sync'){let i=H.players.findIndex(p=>p.conn===c);if(i<0){const p=H.players.find((x,j)=>j>0&&x.tok&&x.tok===d.tok);if(p){p.conn=c;p.off=false;if(H.G)log(`${p.name} 다시 접속`);hb()}return}if(i>0&&d.ver!==H.ver){try{c.send({t:'view',v:viewFor(i)})}catch(e){}}}
 }
 function hostClose(c){
  if(!H)return;const i=H.players.findIndex(p=>p.conn===c);if(i<1)return;
@@ -1596,7 +1598,7 @@ function act(i,d){
 }
 function viewFor(i){
  const P=H.players,G=H.G;
- const pidI=H.players[i]?H.players[i].pid:null,v={chat:(H.chat||[]).filter(m=>m.to==='all'||(m.to==='team'&&H.G&&H.G.teams&&tm(i)===m.tm)||m.to===pidI||m.fp===pidI).slice(-60).map(m=>({id:m.id,fn:m.fn,me:m.fp===pidI,team:m.to==='team',w:m.to!=='all'&&m.to!=='team',tn:m.to!=='all'&&m.to!=='team'?((H.players.find(q=>q.pid===m.to)||{}).name||'?'):null,t:m.t})),code:H.code,me:i,phase:H.phase,mode:H.mode,set:H.set,ready:H.ready?Object.keys(H.ready).map(Number):[],players:P.map((p,j)=>({sit:!!p.sit,bot:!!p.bot,pid:p.pid,name:p.name,av:p.av,score:p.score,n:p.hand.length,off:p.off,uno:p.uno,dead:p.dead,why:p.why||null,whyd:p.whyd||null,fin:!!p.fin,rk:G&&G.ranks?G.ranks.indexOf(j)+1:0,team:G?tm(j):null,fz:!!(G&&G.frozen[j]),hand:G&&(G.reveal[j]||(G.glas&&G.glas[j])||H.set.open||P[i].dead)&&j!==i?p.hand.map(hideLiar):null}))};
+ const pidI=H.players[i]?H.players[i].pid:null,v={ver:H.ver||0,chat:(H.chat||[]).filter(m=>m.to==='all'||(m.to==='team'&&H.G&&H.G.teams&&tm(i)===m.tm)||m.to===pidI||m.fp===pidI).slice(-60).map(m=>({id:m.id,fn:m.fn,me:m.fp===pidI,team:m.to==='team',w:m.to!=='all'&&m.to!=='team',tn:m.to!=='all'&&m.to!=='team'?((H.players.find(q=>q.pid===m.to)||{}).name||'?'):null,t:m.t})),code:H.code,me:i,phase:H.phase,mode:H.mode,set:H.set,ready:H.ready?Object.keys(H.ready).map(Number):[],players:P.map((p,j)=>({sit:!!p.sit,bot:!!p.bot,pid:p.pid,name:p.name,av:p.av,score:p.score,n:p.hand.length,off:p.off,uno:p.uno,dead:p.dead,why:p.why||null,whyd:p.whyd||null,fin:!!p.fin,rk:G&&G.ranks?G.ranks.indexOf(j)+1:0,team:G?tm(j):null,fz:!!(G&&G.frozen[j]),hand:G&&(G.reveal[j]||(G.glas&&G.glas[j])||H.set.open||P[i].dead)&&j!==i?p.hand.map(hideLiar):null}))};
  if(G){const S=G.sub;v.g={gc:H.gcOrig?Object.keys(H.gcOrig).filter(k=>H.set[k]!==H.gcOrig[k]).map(k=>[(RULES.find(x=>x[0]===k)||[0,k])[1],!!H.set[k]]):[],gid:G.gid,tricks:G.tricks||0,side:G.side||'L',lvl:G.lvl||1,need:G.cur===i?G.need||0:0,blaster:G.blaster?G.blaster.length:0,trick:G.trick?G.trick.map(t=>({...t,c:hideLiar(t.c)})):null,broken:!!G.broken,leadCol:G.leadCol||null,sum:G.sum||0,hpend:G.hpend||0,pow:G.pow?G.pow[i]!==false:true,coins:G.coins?G.coins[i]||0:0,pows:G.pow?P.map((q,j)=>G.pow[j]!==false):null,top:hideLiar(G.discard[G.discard.length-1]),top2:G.disc2?G.disc2[G.disc2.length-1]:null,row:G.row||null,wkinds:G.wkinds||[],grids:H.set.prod==='golf'?P.map(q=>q.grid?q.grid.map(x=>x.up?{c:x.c,up:1}:{up:0}):null):null,gd:G.cur===i?G.gd||null:null,gsrc:G.cur===i?G.gsrc||null:null,gheld:!!G.gd,rUsed:G.cur===i?G.rUsed||[]:[],color2:G.color2||null,dUsed:G.dUsed||null,dPlayed:G.cur===i?G.dPlayed||0:0,need2:G.need2===i,color:G.color,dir:G.dir,cur:G.cur,pending:G.pending,plast:G.plast,deckN:G.deck.length,log:G.log.slice(0,12),unoMiss:G.unoMiss,
   drew:G.cur===i?G.drew:null,dbl:G.cur===i&&G.dbl,left:G.deadline?Math.max(0,G.deadline-Date.now()):0,total:G.total||0,round:G.round,turn:G.turn,lastBy:G.lastBy,chain:G.cur===i?G.chain||null:null,cd:G.cdUntil?Math.max(0,G.cdUntil-Date.now()):0,hand:P[i].hand,result:G.result,
   rt:Math.min(G.rt||0,G.tmax||0),tmax:G.tmax||0,chalc:G.w4prev,chal:!!(H.set.bluff&&G.w4chk&&G.pending&&G.cur===i&&G.plastBy===G.w4chk.by),must:G.cur===i&&mustPlay(),links:G.links,teams:G.teams,
@@ -1604,7 +1606,7 @@ function viewFor(i){
  return v;
 }
 function hb(){
- if(!H)return;
+ if(!H)return;H.ver=(H.ver||0)+1;
  H.players.forEach((p,j)=>{if(j===0){V=viewFor(0);recvAt=Date.now()}else if(p.conn&&p.conn.open){try{p.conn.send({t:'view',v:viewFor(j)})}catch(e){}}});
  render();
 }
