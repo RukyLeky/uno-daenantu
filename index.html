@@ -2470,18 +2470,18 @@ function renderIntro(){
  ov.classList.remove('hide');
 }
 function balanceDeck(d,s){
- const isW=c=>c.c==='w',isN=c=>c.k==='n';
+ const isW=c=>c.c==='w',isH=c=>c.k==='n'&&c.v>=12,isN=c=>c.k==='n'&&!isH(c);
  // 와일드는 최대 14%까지: 많은 종류부터 한 장씩 덜어냄 (종류마다 1장은 남김)
  let W=d.filter(isW),cap=Math.round(d.length*.14);
  while(W.length>cap){const g={};W.forEach(c=>{(g[c.k]=g[c.k]||[]).push(c)});const big=Object.values(g).sort((a,b)=>b.length-a.length)[0];if(!big||big.length<=1)break;const x=big[0];d.splice(d.indexOf(x),1);W=d.filter(isW);cap=Math.round(d.length*.14)}
  // 색 특수 카드도 종류당 색마다 최대 2장, 전체의 32% 이하
- let S=d.filter(c=>!isW(c)&&!isN(c)),N=d.filter(isN);
+ let S=d.filter(c=>!isW(c)&&!isN(c)&&!isH(c)),N=d.filter(isN);
  const lim=()=>Math.round((N.length+S.length+W.length)*.32);
  if(S.length>lim()){const g={};S.forEach(c=>{const k=c.k+c.c;(g[k]=g[k]||[]).push(c)});let keys=Object.keys(g);let guard=500;
-  while(S.length>lim()&&guard--){const big=keys.map(k=>g[k]).sort((a,b)=>b.length-a.length)[0];if(!big||big.length<=1)break;const x=big.pop();d.splice(d.indexOf(x),1);S=d.filter(c=>!isW(c)&&!isN(c))}}
+  while(S.length>lim()&&guard--){const big=keys.map(k=>g[k]).sort((a,b)=>b.length-a.length)[0];if(!big||big.length<=1)break;const x=big.pop();d.splice(d.indexOf(x),1);S=d.filter(c=>!isW(c)&&!isN(c)&&!isH(c))}}
  // 숫자 카드는 최소 54%: 모자라면 숫자를 고르게 더 넣음
  N=d.filter(isN);let need=Math.ceil(.54*d.length/.46*.46/(1-.54)*1)-0;
- const target=()=>Math.ceil((d.length-N.length)*.54/.46);
+ const nH=d.filter(isH).length,target=()=>Math.ceil((d.length-N.length-nH)*.54/.46);
  let q=0;const top=9;while(N.length<target()&&q<400){const c='rygb'[q%4],v=1+((q*7)%top);const x={c,k:'n',v};d.push(x);N.push(x);q++}
  return d}
 function deckOnceC(s){const keep=H;try{return deckOnce(s)}finally{}}
