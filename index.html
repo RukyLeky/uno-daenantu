@@ -584,6 +584,7 @@ input.tx:focus{border-color:var(--blue);outline:none;box-shadow:0 0 0 4px rgba(7
 #chats{background:#ffd166;border:0;border-radius:10px;font-weight:800;padding:0 12px;cursor:pointer}
 #chattoast{position:fixed;left:16px;bottom:142px;z-index:61;max-width:min(360px,80vw);background:rgba(10,14,34,.88);color:#fff;border-radius:12px;padding:8px 12px;font-size:13.5px;opacity:0;transform:translateY(6px);transition:.25s;pointer-events:none}
 #chattoast.on{opacity:1;transform:none}#chattoast b{color:#9fb5ff;margin-right:4px}
+#chatw.lobby{bottom:auto;z-index:5}#chatw.lobby #chatp{width:100%;height:auto;min-height:200px;max-height:calc(100vh - var(--ct,0px) - 24px)}#chatw.lobby #chatl{min-height:120px}#chatw.lobby #chatx{display:none}
 /* ===== 카드 면 v3: 글자 캡션 없이 아이콘으로 ===== */
 .cd{--w:84px;width:var(--w);height:calc(var(--w)*1.5);border-radius:calc(var(--w)*.13);position:relative;flex:none;user-select:none;font-weight:900;
  background:linear-gradient(165deg,#ffffff,#eceef4);box-shadow:inset 0 0 0 1px rgba(0,0,0,.06),0 1px 1px rgba(0,0,0,.2),0 calc(var(--w)*.04) calc(var(--w)*.12) rgba(0,0,0,.35)}
@@ -2042,7 +2043,7 @@ function effect(i,c,d,guilty){
   else{G.hpend=0;if((k==='retal'||k==='wnou')&&alive>2)G.dir*=-1;if(ok){log(`${KD[k].n}! 발사기 ×${n}를 ${P[by].name}에게 되돌림`);for(let q=0;q<n;q++)hit(by)}else log(`${KD[k].n}! 발사기 ×${n} 무효`)}
   return r}
  if(!H.set.ono&&(k==='m10'||k==='m2'||k==='p2')){
-  if(k==='p2'){if(G.pending>0){G.pending*=2;G.plast=G.pending;G.plastBy=i;log(`플레이 2! 쌓인 벌칙 두 배 → +${G.pending}, 다음 사람에게`)}else if(G.hpend>0){G.hpend*=2;G.hpBy=i;log(`플레이 2! 발사기 ×${G.hpend}, 다음 사람에게`)}else{G.p2t=nxt}return r}
+  if(k==='p2'){if(G.pending>0){G.pending*=2;G.plast=G.pending;G.plastBy=i;log(`플레이 2! 쌓인 벌칙 두 배 → +${G.pending}, 다음 사람에게`)}else if(G.hpend>0){G.hpend*=2;G.hpBy=i;log(`플레이 2! 발사기 ×${G.hpend}, 다음 사람에게`)}else if(P[nxt].hand.length<=1){log(`${P[nxt].name}은(는) 1장뿐이라 2장 연속으로 낼 수 없음 → 2장 받고 쉼`);forceDraw(nxt,2);r.skip=1}else{G.p2t=nxt}return r}
   const m=k==='m10'?10:2;
   if(G.pending>0){const n=Math.max(0,G.pending-m);if(n){G.pending=n;G.plast=Math.min(G.plast||n,n);G.plastBy=i;log(`${KD[k].n}! 벌칙을 ${m} 줄여 +${n}로 다음 사람에게`)}else{clearPending();log(`${KD[k].n}! 벌칙이 0이 돼서 사라짐`)}return r}
   if(G.hpend>0){const n=Math.max(0,G.hpend-m);G.hpend=n;if(n){G.hpBy=i;log(`${KD[k].n}! 발사기를 ${m}번 줄여 ×${n}로 다음 사람에게`)}else log(`${KD[k].n}! 발사기가 0이 돼서 사라짐`);return r}
@@ -2050,7 +2051,7 @@ function effect(i,c,d,guilty){
   return r}
  switch(k){
   case 'd0':if(G.pending>0){G.plastBy=i;log(`+0! 쌓인 +${G.pending}를 그대로 다음 사람에게`)}else if(G.hpend>0)log(`+0! 힛 ${G.hpend}번을 그대로 다음 사람에게`);else r.skip=1;break;
-  case 'wp2':G.p2t=nxt;break;
+  case 'wp2':if(P[nxt].hand.length<=1){log(`${P[nxt].name}은(는) 1장뿐이라 2장 연속으로 낼 수 없음 → 2장 받고 쉼`);forceDraw(nxt,2);r.skip=1}else G.p2t=nxt;break;
   case 'dd2':if(d.target!=null&&d.t2!=null){forceDraw(d.target,2);forceDraw(d.t2,2);log(`더블 +2! ${P[d.target].name}·${P[d.t2].name} 2장씩`)}break;
   case 'wh4':for(let q=0;q<4;q++)hit(nxt);r.skip=1;break;
   case 'h4c':for(let q=0;q<4;q++)hit(nxt);r.skip=1;break;
@@ -2362,9 +2363,9 @@ let CHO=false,CHSEEN=0,CHTO='all',CHSIG='',CHLAST=-1;
 function chatSend(){const el=$('chatin');if(!el)return;const t=el.value.trim();if(!t)return;el.value='';send({a:'chat',txt:t,to:CHTO==='all'||CHTO==='team'?CHTO:+CHTO})}
 function chatRender(){let el=$('chatw');if(!V){if(el)el.classList.add('hide');return}
  if(!el){el=document.createElement('div');el.id='chatw';el.innerHTML='<button id="chatpill" type="button"></button><div id="chatp"><div id="chath"><b>채팅</b><select id="chatto"></select><button id="chatx" type="button" aria-label="닫기">×</button></div><div id="chatl"></div><div id="chatf"><input id="chatin" maxlength="200" placeholder="메시지 입력 후 Enter" autocomplete="off"><button id="chats" type="button">보내기</button></div></div>';document.body.appendChild(el);
-  $('chatpill').onclick=()=>{CHO=true;render();setTimeout(()=>{const i=$('chatin');i&&i.focus()},30)};$('chatx').onclick=()=>{CHO=false;render()};$('chats').onclick=chatSend;$('chatto').onchange=e=>{CHTO=e.target.value}}
- el.classList.remove('hide');el.classList.toggle('open',CHO);
- const msgs=V.chat||[],last=msgs.length?msgs[msgs.length-1].id:0;if(CHO)CHSEEN=last;
+  $('chatpill').onclick=()=>{CHO=true;render();setTimeout(()=>{const i=$('chatin');i&&i.focus()},30)};$('chatx').onclick=()=>{CHO=false;render()};addEventListener('resize',()=>{try{chatRender()}catch(e){}});$('chats').onclick=chatSend;$('chatto').onchange=e=>{CHTO=e.target.value}}
+ el.classList.remove('hide');const lob=V.phase==='lobby';el.classList.toggle('lobby',lob);el.classList.toggle('open',CHO||lob);if(lob){const pl=$('plist'),pan=pl&&(pl.closest('.pan')||pl.parentNode);if(pan){const r=pan.getBoundingClientRect();el.style.left=r.left+'px';el.style.top=Math.min(r.bottom+12,innerHeight-220)+'px';el.style.width=r.width+'px'}}else{el.style.left='';el.style.top='';el.style.width=''}
+ const msgs=V.chat||[],last=msgs.length?msgs[msgs.length-1].id:0;if(CHO||V.phase==='lobby')CHSEEN=last;
  const unread=msgs.filter(m=>m.id>CHSEEN&&!m.me).length;
  $('chatpill').innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-4.9A8 8 0 1 1 21 12z"/></svg>채팅${unread?`<i>${unread}</i>`:''}`;
  const teamOk=!!(V.set&&V.set.team&&V.g&&V.g.teams),opts=[['all','전체']].concat(teamOk?[['team','팀']]:[]).concat((V.players||[]).map((p,j)=>[String(j),'귓속말: '+p.name,p]).filter(x=>+x[0]!==V.me&&!x[2].bot&&!x[2].off)),sig=opts.map(o=>o[0]+o[1]).join('|');
@@ -2374,7 +2375,7 @@ function chatRender(){let el=$('chatw');if(!V){if(el)el.classList.add('hide');re
  if(last!==CHLAST){CHLAST=last;const L=$('chatl');const atB=L.scrollTop+L.clientHeight>=L.scrollHeight-30;
   L.innerHTML=msgs.length?msgs.map(m=>`<p class="${m.w?'w':''} ${m.team?'t':''} ${m.me?'me':''}"><b>${m.team?'[팀] ':''}${esc(m.fn)}${m.w?(m.me?` → ${esc(m.tn)}`:' (귓속말)'):''}</b><span>${esc(m.t)}</span></p>`).join(''):'<p class="em">아직 메시지가 없어요. 팀전이면 팀 채팅, 언제든 귓속말도 돼요.</p>';
   if(atB||CHO)L.scrollTop=L.scrollHeight;
-  if(!CHO&&msgs.length&&!msgs[msgs.length-1].me&&msgs[msgs.length-1].id>CHSEEN){const m=msgs[msgs.length-1];let t=$('chattoast');if(!t){t=document.createElement('div');t.id='chattoast';document.body.appendChild(t)}t.innerHTML=`<b>${m.team?'[팀] ':''}${esc(m.fn)}${m.w?' (귓속말)':''}</b> ${esc(m.t)}`;t.className='on';clearTimeout(t._h);t._h=setTimeout(()=>t.className='',3500)}}}
+  if(!CHO&&V.phase!=='lobby'&&msgs.length&&!msgs[msgs.length-1].me&&msgs[msgs.length-1].id>CHSEEN){const m=msgs[msgs.length-1];let t=$('chattoast');if(!t){t=document.createElement('div');t.id='chattoast';document.body.appendChild(t)}t.innerHTML=`<b>${m.team?'[팀] ':''}${esc(m.fn)}${m.w?' (귓속말)':''}</b> ${esc(m.t)}`;t.className='on';clearTimeout(t._h);t._h=setTimeout(()=>t.className='',3500)}}}
 window.addEventListener('keydown',e=>{const t=e.target;if(t&&t.id==='chatin'){if(e.key==='Enter'&&!e.isComposing){e.preventDefault();chatSend()}else if(e.key==='Escape'){CHO=false;t.blur();render()}e.stopImmediatePropagation();return}
  if(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.tagName==='SELECT'))return;
  if(e.key==='Enter'&&!CHO&&V&&!e.repeat&&!document.querySelector('.ov:not(.hide) input')){/* Enter로 채팅 열기 */CHO=true;render();setTimeout(()=>{const i=$('chatin');i&&i.focus()},30);e.preventDefault();e.stopImmediatePropagation()}},true);
