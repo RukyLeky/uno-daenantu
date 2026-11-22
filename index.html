@@ -559,6 +559,10 @@ input.tx:focus{border-color:var(--blue);outline:none;box-shadow:0 0 0 4px rgba(7
 .gheld .cd{width:100%}
 .st .sgrid{position:absolute;top:100%;left:50%;transform:translateX(-50%);display:flex;gap:2px;margin-top:4px;pointer-events:none}
 .st .sgrid>div{display:flex;flex-direction:column;gap:2px}
+.mgh small{display:block;font-size:12px;font-weight:700;color:#7a6a99;margin-top:2px;letter-spacing:0}
+.mode b .mk{font-style:normal;font-size:10.5px;font-weight:800;padding:2px 7px;border-radius:999px;margin-left:6px;vertical-align:2px;white-space:nowrap}
+.mk.mix{background:#e6f4ea;color:#1e7a3c}.mk.fix{background:#e8eefc;color:#2445a8}.mk.ind{background:#fde9e7;color:#b3261e}
+.pnote{margin:6px 2px 0;font-size:12.5px;font-weight:700;color:#7a5a00;background:#fff6d6;border-radius:10px;padding:7px 10px}
 /* ===== 카드 면 v3: 글자 캡션 없이 아이콘으로 ===== */
 .cd{--w:84px;width:var(--w);height:calc(var(--w)*1.5);border-radius:calc(var(--w)*.13);position:relative;flex:none;user-select:none;font-weight:900;
  background:linear-gradient(165deg,#ffffff,#eceef4);box-shadow:inset 0 0 0 1px rgba(0,0,0,.06),0 1px 1px rgba(0,0,0,.2),0 calc(var(--w)*.04) calc(var(--w)*.12) rgba(0,0,0,.35)}
@@ -1150,7 +1154,7 @@ const PACKS=[
  ['ultra','난투극','이 게임 오리지널 카드'],
  ['mercy','노 머시','UNO Show ’Em No Mercy'],
  ['nmx','노 머시 확장','No Mercy 확장팩: 10, 역방향 +8, 파이널 어택, 서든 데스'],
- ['flip','플립 카드','+1, +5, 드로우 컬러 (한 면으로)'],
+ ['flip','플립 카드','한 면 버전: +1, +5, 드로우 컬러 (양면 플립은 독립 게임 모드)'],
  ['attack','어택','UNO Attack: 힛 2, 손패 교환, 힛 파이어, 올 히트'],
  ['atkx','어택+','메가 히트 · 플립 어택 · 노 머시 어택 카드'],
  ['allwild','올 와일드','UNO All Wild 카드'],
@@ -1176,6 +1180,8 @@ const PACKS=[
  ['hot','핫 데스','팬게임 Hot Death UNO'],
  ['liar','거짓말쟁이','Liar’s UNO 거짓말 카드']
 ];
+const MODE_G=[['기본 · 팩 조합',['original','quick','speed','house','brawl','ultram','hotm','dancem','heart23','revm','stkm','spdm','swapm','billiem','flexm','dosm','custom']],['공식 제품 · 덱 고정',['mercy','nmx','attack','mega','nmattack','allwild','party','teamm','express','gold','sdm','spinm','darem','emom','liarm','nonpart','junior']],['콜라보 · 덱 고정',['mkm','smm','angrym']],['독립 게임 · 판 구조가 달라요',['flip','flipx','fattack','blast','hearts','ono','dos1','dos2','golf']]];
+const MODE_GD={'기본 · 팩 조합':'기본 덱에 카드 팩과 규칙을 골라 섞은 프리셋. 커스텀에서 똑같이 만들 수 있어요.','공식 제품 · 덱 고정':'그 제품의 실제 덱 그대로. 팩 설정은 안 쓰고, 규칙은 바꿀 수 있어요.','콜라보 · 덱 고정':'콜라보 제품의 실제 덱 그대로.','독립 게임 · 판 구조가 달라요':'양면 카드·블래스터·트릭·합계 99·더미 2개·칸처럼 판 자체가 달라서 팩과 섞을 수 없어요.'};
 const KORD=Object.keys(KD);
 const COPYABLE=new Set(['rskip','rd2','hit1','hit5','spread','st1','st2','skip','wskip','skip2','wskip2','skipall','rev','wrev','d1','d2','d4c','d5','wd2','w4','wr4','w6','w10','every1','dbl','wshuf','wallhit','whit2','w5050','wdc']);
 const HITS=[0,0,0,1,1,1,1,2,2,2,3,4,6];
@@ -1210,7 +1216,7 @@ const BASE={prod:null,cb:false,flip2:false,blast:false,hearts:false,express:fals
 const ALLP={dance:true,ultra:true,mercy:true,nmx:true,flip:true,attack:true,atkx:true,allwild:true,party:true,gold:true,rev:true,stk:true,spdp:true,swap:true,billie:true,spinp:true,sdp:true,darep:true,emop:true,flexp:true,teamp:true,housep:true,heart:true,mk:true,smario:true,angry:true,hot:true,liar:true};
 const MODES=[
  {id:'original',n:'클래식',d:'진짜 우노 그대로. 0~9 공식 108장, 기본 규칙만.',c:'#e5383b',i:'<rect x="5" y="3" width="14" height="18" rx="3"/><path d="M12 8v8M9 11l3-3"/>',s:{orig:true,stack:false,packs:{ultra:false}}},
- {id:'brawl',n:'대난투',d:'모든 팩을 섞어서. 30장 넘으면 탈락.',c:'#ff5d6c',i:ICON.burst,s:{packs:ALLP,jump:true,sz:true,mercy:30}},
+ {id:'brawl',n:'대난투',d:'섞을 수 있는 건 전부! 모든 카드 팩 + 누적·7-0·끼어들기·강제 내기·우노 잡기·겹쳐내기·연속 내기·메가 히트·5에 손 치기. 30장 탈락.',c:'#ff5d6c',i:ICON.burst,s:{packs:ALLP,stack:true,jump:true,sz:true,force:true,catch:true,multi:true,run:true,mega:true,slap:true,bluff:false,mercy:30}},
  {id:'flip',n:'플립',d:'양면 카드! 플립 카드를 내면 밝은 면 ↔ 어두운 면.',c:'#ff9f45',i:'<path d="M4 7h11a4 4 0 0 1 0 8H8M8 11l-4 4 4 4"/>',s:{flip2:true,stack:false,packs:{...PK0}}},
  {id:'allwild',n:'올 와일드',d:'112장 전부 와일드. 색·숫자 상관없이 아무거나 내요. 첫 카드 효과는 무시.',c:'#b388ff',i:'<circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/>',s:{prod:'allwild',allwild:true,stack:false}},
  {id:'party',n:'파티 매니아',d:'공식 파티: 끼어들기(스피드 플레이), 포인트 테이큰, 파일 업, 드로운 투게더.',c:'#ff8fd8',i:ICON.point,s:{prod:'party',jump:true,stack:false}},
@@ -1256,7 +1262,10 @@ const MODES=[
  {id:'dos2',n:'DOS (2판)',d:'버림 더미가 2개! 한 턴에 두 더미 다 낼 수 있고, 같은 색 두 장을 합쳐 숫자를 맞춰도 돼요. 2는 전부 와일드 DOS. 2장 남으면 "도스!"',c:'#118ab2',i:ICON.layers,s:{prod:'dos2',cb:true,stack:false,catch:false,hand:7,target:500}},
  {id:'custom',n:'커스텀',d:'팩과 규칙을 직접 골라요.',c:'#9e9e9e',i:'<path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/>',s:{packs:ALLP,stack:true,sz:true,jump:true,force:true,dtm:true,bluff:true,catch:true,multi:true,run:true,launcher:false,team:false,slap:false,mercy:25,timer:30}}
 ];
-const MODE_G=[['기본',['original','quick','speed','house','brawl','junior','custom']],['공식 변형',['mercy','flip','attack','allwild','party','teamm','express','gold','sdm','spinm','darem','emom','flexm','liarm','nonpart']],['애드온 · 확장',['revm','stkm','spdm','swapm','billiem','nmx','mega','fattack','flipx','nmattack']],['콜라보 · 팬',['mkm','smm','dancem','angrym','hotm','ultram','heart23']],['특수 게임',['golf','dos1','dos2','hearts','ono','blast','dosm']]];
+const INDEP=s=>!!s&&(!!s.flip2||!!s.blast||!!s.hearts||!!s.ono||['dos1','dos2','golf'].includes(s.prod));
+const MKIND=s=>INDEP(s)?['ind','독립 게임']:s&&s.prod?['fix','공식 덱 고정']:['mix','팩 조합'];
+const PRODPACK={mercy:['mercy'],nmx:['mercy','nmx'],attack:['attack'],mega:['atkx'],nmattack:['mercy','atkx'],allwild:['allwild'],party:['party'],teams:['teamp'],gold:['gold'],sdm:['sdp'],spin:['spinp'],dare:['darep'],emo:['emop'],liar:['liar'],mk:['mk'],smario:['smario'],angry:['angry']};
+const MODE_G_OLD=[['기본',['original','quick','speed','house','brawl','junior','custom']],['공식 변형',['mercy','flip','attack','allwild','party','teamm','express','gold','sdm','spinm','darem','emom','flexm','liarm','nonpart']],['애드온 · 확장',['revm','stkm','spdm','swapm','billiem','nmx','mega','fattack','flipx','nmattack']],['콜라보 · 팬',['mkm','smm','dancem','angrym','hotm','ultram','heart23']],['특수 게임',['golf','dos1','dos2','hearts','ono','blast','dosm']]];
 const mkSet=s=>({...BASE,...s,packs:{...PK0,...(s.packs||{})}});
 
 function cardHTML(c,cls=''){
@@ -1471,9 +1480,9 @@ function act(i,d){
  if(!H)return;const host=i===0,lobby=H.phase==='lobby';
  switch(d.a){
   case 'mode':{const m=MODES.find(x=>x.id===d.v);if(host&&lobby&&m){H.mode=m.id;if(m.s)H.set=mkSet(m.s)}break}
-  case 'rule':if(host&&lobby&&RULES.some(r=>r[0]===d.k)){H.set[d.k]=!H.set[d.k];H.mode='custom'}break;
+  case 'rule':if(host&&lobby&&RULES.some(r=>r[0]===d.k)){H.set[d.k]=!H.set[d.k];if(!H.set.prod&&!INDEP(H.set))H.mode='custom'}break;
   case 'num':{const s=NUMS.find(x=>x.k===d.k);if(host&&lobby&&s&&s.o.some(o=>o[0]===d.v)){H.set[d.k]=d.v;H.mode='custom'}break}
-  case 'pack':if(host&&lobby){if(d.k==='base'){if(H.set.orig){H.set.orig=false}else H.set.allwild=!H.set.allwild}else if(d.k==='orig'){H.set.orig=!H.set.orig;H.set.allwild=false}else if(d.k in H.set.packs){H.set.packs[d.k]=!H.set.packs[d.k];H.set.allwild=false;H.set.orig=false}H.mode='custom'}break;
+  case 'pack':if(host&&lobby){if(INDEP(H.set)){const keep={timer:H.set.timer,join:H.set.join,leave:H.set.leave};H.set=mkSet({...MODES.find(m=>m.id==='original').s,...keep,orig:false})}else if(H.set.prod){(PRODPACK[H.set.prod]||[]).forEach(k=>{if(k in H.set.packs)H.set.packs[k]=true});H.set.prod=null;H.set.allwild=false;H.set.express=false}if(d.k==='base'){if(H.set.orig){H.set.orig=false}else H.set.allwild=!H.set.allwild}else if(d.k==='orig'){H.set.orig=!H.set.orig;H.set.allwild=false}else if(d.k in H.set.packs){H.set.packs[d.k]=!H.set.packs[d.k];H.set.allwild=false;H.set.orig=false}H.mode='custom'}break;
   case 'addbot':{if(host&&lobby&&H.players.length<16){let name='봇 '+rnd(ANI),k=2;while(H.players.some(x=>x.name===name))name='봇 '+rnd(ANI)+k++;H.players.push({tok:'bot'+Math.random(),pid:newPid(),img:null,name,av:Math.random()*1e9|0,conn:null,off:false,bot:true,hand:[],score:0,uno:false,dead:false})}break}
   case 'kick':{if(host&&lobby&&d.v>0&&H.players[d.v]){const p=H.players.splice(d.v,1)[0];if(p.conn){p.conn.send({t:'kicked'});const c=p.conn;setTimeout(()=>c.close(),300)}}break}
   case 'start':if(host&&lobby&&H.players.length>=2){H.phase='intro';H.ready={}}break;
@@ -2279,14 +2288,14 @@ function renderLobby(){
  $('plist').innerHTML=P.map((p,i)=>`<li class="pl">${face(p)}<span class="nm">${esc(p.name)}</span>${p.bot?'<span class="tag bot">BOT</span>':''}${i===0?CROWN:''}${i===V.me?'<span class="tag me">나</span>':''}${host&&i>0?`<button class="kick" data-a="kick" data-v="${i}" aria-label="내보내기">×</button>`:''}</li>`).join('')
   +Array.from({length:slots-P.length},(x,k)=>k===0&&host&&P.length<16&&V.phase==='lobby'?'<li class="pl empty"><button class="addbot" data-a="addbot">+ 봇 추가</button></li>':'<li class="pl empty">빈자리</li>').join('');
  $('mhead').innerHTML=host?'모드 고르기 <small>방장만 바꿀 수 있어요</small>':'모드 <small>방장이 고르는 중</small>';
- $('modes').innerHTML=MODE_G.map(([gn,ids])=>`<h5 class="mgh">${gn}</h5>`+ids.map(id=>MODES.find(m=>m.id===id)).filter(Boolean).map(m=>`<button class="mode ${V.mode===m.id?'on':''}" data-a="mode" data-v="${m.id}" ${dis}><span class="ic" style="background:${m.c}">${svg(m.i,2.4)}</span><b>${m.n}</b><span>${m.d}</span></button>`).join('')).join('');
+ $('modes').innerHTML=MODE_G.map(([gn,ids])=>`<h5 class="mgh">${gn}<small>${MODE_GD[gn]||''}</small></h5>`+ids.map(id=>MODES.find(m=>m.id===id)).filter(Boolean).map(m=>{const mk=MKIND(m.s||{});return`<button class="mode ${V.mode===m.id?'on':''}" data-a="mode" data-v="${m.id}" ${dis}><span class="ic" style="background:${m.c}">${svg(m.i,2.4)}</span><b>${m.n}<em class="mk ${mk[0]}">${mk[1]}</em></b><span>${m.d}</span></button>`}).join('')).join('');
  const packs=PACKS.map(([k,n,d])=>{const on=k==='base'?!s.allwild:!s.allwild&&s.packs[k];const lab=k==='base'&&s.allwild?'올 와일드 덱':n;return`<button class="chipb ${on||(k==='base'&&s.allwild)?'on':''}" data-a="pack" data-k="${k}" title="${esc(d)}" ${dis}>${lab}</button>`}).join('');
  const rules=RULES.map(([k,n,d])=>`<button class="rrow ${s[k]?'on':''}" data-a="rule" data-k="${k}" ${dis}><span class="sw2"><i></i></span><span class="rt"><b>${n}</b><small>${esc(d)}</small></span></button>`).join('');
  const nums=NUMS.map(x=>{const cur=x.o.find(o=>o[0]===s[x.k]),nd=(cur&&cur[2])||x.d||'';return`<div class="set"><span>${x.l}</span><div class="pills">${x.o.map(([v,l])=>`<button class="pill ${s[x.k]===v?'on':''}" data-a="num" data-k="${x.k}" data-v='${JSON.stringify(v)}' ${dis}>${l}</button>`).join('')}</div>${nd?`<p class="nd">${nd}</p>`:''}</div>`}).join('');
  const deckN=(()=>{try{return deckOnceC(s).length}catch(e){return 0}})();
  const packBox=s.orig?`<p class="sub2">오리지널: 공식 우노 108장(숫자 0~9, 건너뛰기, 방향 전환, +2, 와일드, 와일드 +4)만 써요. 팩을 켜면 오리지널이 꺼져요.</p>`:s.allwild?`<p class="sub2">올 와일드: 모든 카드가 와일드인 전용 덱이에요. 기본 칩을 누르면 일반 덱으로 돌아가요.</p>`:`<p class="sub2">덱 한 벌 ${deckN}장. 사람이 많으면 자동으로 벌 수가 늘어나요.</p>`;
  $('sets').innerHTML=`<div class="summ"><b>적용된 룰</b>${rulesSummary(s,V.mode,P.length).map(x=>`<p><em>${x[0]}</em>${esc(x[1])}</p>`).join('')}</div>
-  <div class="set"><span>카드 팩</span><div class="pills"><button class="chipb ${s.orig?'on':''}" data-a="pack" data-k="orig" ${dis}>오리지널 덱</button>${s.orig?'':packs}</div></div>${packBox}
+  <div class="set"><span>카드 팩</span><div class="pills"><button class="chipb ${s.orig?'on':''}" data-a="pack" data-k="orig" ${dis}>오리지널 덱</button>${s.orig?'':packs}</div>${INDEP(s)?'<p class="pnote">독립 게임 모드라 카드 팩을 쓰지 않아요. 팩을 누르면 기본 덱 기준 커스텀으로 바뀌어요.</p>':s.prod?'<p class="pnote">공식 덱 고정 모드라 카드 팩은 적용되지 않아요. 팩을 누르면 이 제품 카드가 켜진 커스텀(팩 조합)으로 바뀌어요.</p>':''}</div>${packBox}
   <div class="set col"><span>하우스 룰</span><div class="rrows">${rules}</div></div>${nums}`;
  $('code').textContent=V.code;
  $('lnkbtn').classList.toggle('hide',!/^https?:/.test(location.protocol));
