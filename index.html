@@ -642,7 +642,7 @@ body.ingame .mod .summ p{color:#c3cbec}body.ingame .mod .summ em{color:#ffd166}
 body.ingame .mod h4{color:#fff;border-top-color:rgba(255,255,255,.1)}
 body.ingame .mod .msub,body.ingame .mod small,body.ingame .mod .sub{color:#9aa4c8}
 body.ingame .mod .srow{border-bottom-color:rgba(255,255,255,.08)}body.ingame .mod .srow b{color:#fff}
-body.ingame .mod .tg i{background:#39406a}
+
 body.ingame .mod .res td,body.ingame .mod table td{border-bottom-color:rgba(255,255,255,.08);color:#e6eaff}
 body.ingame .mod .res tr.hd td{color:#8f9bc4}body.ingame .mod .res td.rk{color:#8f9bc4}
 body.ingame .mod .res tr.win td{background:rgba(255,209,102,.1)}
@@ -664,6 +664,31 @@ body:has(.mod:not(.hide)) #chatw:not(.lobby){display:none}
 #chatw.lobby #chatf{border-top:3px solid #e2d8f5}
 #chatw.lobby #chatin{background:#fff;color:var(--gk);border:2px solid #e2d8f5}
 .joinrow .btn{flex:none;padding:0 18px;min-width:80px;display:inline-flex;align-items:center;justify-content:center}
+
+/* ===== 팝업 안 버튼·스위치·슬라이더: 로비와 같은 굵은 테두리 스타일 ===== */
+.mod .btn,#chatw.lobby #chats{border:3px solid var(--gk);border-radius:14px;box-shadow:0 4px 0 var(--gk);font-weight:900;color:var(--gk);background:#fff;background-image:none}
+.mod .btn:active:not(:disabled),#chatw.lobby #chats:active{transform:translateY(3px);box-shadow:0 1px 0 var(--gk)}
+.mod .btn.y,#chatw.lobby #chats{background:#ffd23f}.mod .btn.m{background:#2ed3b7}.mod .btn.r{background:#ff4b55;color:#fff}
+#chatw.lobby #chats{min-height:0;padding:0 14px;font-size:15px}
+.mod .tg i{background:#e9e3f5;box-shadow:inset 0 0 0 2.5px var(--gk)}
+.mod .tg i::after{background:#fff;box-shadow:inset 0 0 0 2.5px var(--gk),0 2px 0 var(--gk)}
+.mod .tg input:checked+i{background:#2ed3b7}
+.mod .rng{-webkit-appearance:none;appearance:none;height:14px;border-radius:999px;background:linear-gradient(90deg,#ffd23f var(--v,50%),#ede7f8 var(--v,50%));box-shadow:inset 0 0 0 2.5px var(--gk);margin:8px 0;cursor:pointer}
+.mod .rng::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:24px;height:24px;border-radius:50%;background:#fff;border:3px solid var(--gk);box-shadow:0 2px 0 var(--gk)}
+.mod .rng::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:#fff;border:3px solid var(--gk);box-shadow:0 2px 0 var(--gk)}
+.mod .rng::-moz-range-track{background:transparent}
+.mod .rv{font-weight:900;color:var(--gk)}
+/* 게임 중(어두운 창)에서는 같은 모양을 어두운 색으로 */
+body.ingame .mod .btn{border:1px solid rgba(255,255,255,.22);box-shadow:0 3px 0 rgba(0,0,0,.45);background:rgba(255,255,255,.08);color:#fff}
+body.ingame .mod .btn.y{background:#ffd166;color:#1a1238;border-color:transparent}body.ingame .mod .btn.r{background:#ff4b55;color:#fff;border-color:transparent}
+body.ingame .mod .btn:active:not(:disabled){box-shadow:0 0 0 rgba(0,0,0,.45)}
+body.ingame .mod .tg i{background:rgba(255,255,255,.14);box-shadow:inset 0 0 0 1px rgba(255,255,255,.22)}
+body.ingame .mod .tg i::after{box-shadow:0 2px 3px rgba(0,0,0,.4)}
+body.ingame .mod .tg input:checked+i{background:#2ed3b7}
+body.ingame .mod .rng{background:linear-gradient(90deg,#ffd166 var(--v,50%),rgba(255,255,255,.14) var(--v,50%));box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)}
+body.ingame .mod .rng::-webkit-slider-thumb{border:0;box-shadow:0 2px 6px rgba(0,0,0,.5)}
+body.ingame .mod .rng::-moz-range-thumb{border:0}
+body.ingame .mod .rv{color:#fff}
 /* ===== 카드 면 v3: 글자 캡션 없이 아이콘으로 ===== */
 .cd{--w:84px;width:var(--w);height:calc(var(--w)*1.5);border-radius:calc(var(--w)*.13);position:relative;flex:none;user-select:none;font-weight:900;
  background:linear-gradient(165deg,#ffffff,#eceef4);box-shadow:inset 0 0 0 1px rgba(0,0,0,.06),0 1px 1px rgba(0,0,0,.2),0 calc(var(--w)*.04) calc(var(--w)*.12) rgba(0,0,0,.35)}
@@ -2916,7 +2941,9 @@ setInterval(()=>{
 },200);
 addEventListener('resize',()=>{if(V&&V.g&&V.phase!=='lobby')render()});
 /* ================= 모달 ================= */
-function modal(html,wide){const m=$('mod');m.innerHTML=`<div class="pan dlg ${wide?'wide':''}"><button class="mx" data-a="close" aria-label="닫기">×</button>${html}</div>`;m.classList.remove('hide')}
+function modal(html,wide){const m=$('mod');m.innerHTML=`<div class="pan dlg ${wide?'wide':''}"><button class="mx" data-a="close" aria-label="닫기">×</button>${html}</div>`;m.classList.remove('hide');m.querySelectorAll('.rng').forEach(rngFill)}
+function rngFill(r){r.style.setProperty('--v',((r.value-(r.min||0))/((r.max||100)-(r.min||0))*100)+'%')}
+document.addEventListener('input',e=>{if(e.target&&e.target.classList&&e.target.classList.contains('rng'))rngFill(e.target)},true);
 function closeMod(){const m=$('mod');m.classList.add('hide');m.innerHTML=''}
 function helpHTML(){
  const ex=k=>({c:KD[k].w?'w':KD[k].p==='flipx'?'p':['r','y','g','b'][KORD.indexOf(k)%4],k,v:k==='n'?7:KD[k].p==='spdp'||k==='spin'||k==='sd'||k==='tpass'?5:k==='p10'?10:k==='wdos'?2:null});
